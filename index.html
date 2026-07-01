@@ -120,46 +120,147 @@
       return hasPhotoPattern && !isAvatar;
     };
 
-    // =========================================================================
+        // =========================================================================
     // ⚠️ PHẦN KHỞI TẠO DỮ LIỆU GỐC (DÀNH CHO KHÁCH TRUY CẬP LẦN ĐẦU)
     // =========================================================================
     const INITIAL_SETTINGS = {
       "albumTitle": "Tổ Ấm Yêu Thương",
       "albumSubtitle": "Nơi bão dừng sau cánh cửa - Kỷ niệm gia đình chúng mình",
       "musicUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-      "anniversaryDate": "1998-05-20",
+      "anniversaryDate": "2005-08-15",
       "adminPin": "1234"
-    };
+};
 
     const INITIAL_MEMBERS = [
-      { id: '1', name: 'Ba Thịnh', role: 'Trụ cột vững chãi', bio: 'Thích uống Cafe, và cực kỳ chiều chuộng cả nhà.', avatar: '' },
-      { id: '2', name: 'Mẹ Nhi', role: 'Bếp trưởng ấm áp', bio: 'Bàn tay vàng trong làng nấu nướng, giữ ngọn lửa yêu thương cho tổ ấm.', avatar: '' },
-      { id: '3', name: 'Anh Hai Bin', role: 'Lập trình viên tương lai', bio: 'Thích âm nhạc, lập trình viên tương lai.', avatar: '' },
-      { id: '4', name: 'Em Bo', role: 'Vitamin vui vẻ', bio: 'Yêu ca hát, nguồn năng lượng tích cực và là cục cưng của cả nhà.', avatar: '' }
-    ];
+      {
+            "id": "1",
+            "name": "Ba Thịnh",
+            "role": "Trụ cột vững chãi",
+            "bio": "Thích uống Cafe, và cực kỳ chiều chuộng cả nhà.",
+            "avatar": "https://lh3.googleusercontent.com/pw/AP1GczNJdx60H55swvl6vSIn0zMiOiZGsXkXqxefvwa0N9uBzDHRm1Eve4-uUyV7rPmEIPnoXsUQR9dFfCuEUSTUbWDxa0O4wxv3ArTrs7-TdzDuQ3QPoTvMQ8grysg4ekY5MaJ2JRqxpa9ryCSkC1-I0stp-Q=w693-h923-s-no-gm?authuser=0"
+      },
+      {
+            "id": "2",
+            "name": "Mẹ Nhi",
+            "role": "Bếp trưởng ấm áp",
+            "bio": "Bàn tay vàng trong làng nấu nướng, giữ ngọn lửa yêu thương cho tổ ấm.",
+            "avatar": "https://lh3.googleusercontent.com/pw/AP1GczOJLiRGSJ3C1sW9RkRXusvvaU-MaEXQx8nSqBIfam6hkDsq-yDuONXfDCs6xz6v_3JuQgYkxgbr48oBsVUHPH4KtPpYqSmcmlwYSo62J38EJEU-a1c0NWcoCeRRiDkza16fh18srutZ4phWSrJkyM_j-g=w693-h923-s-no-gm?authuser=0"
+      },
+      {
+            "id": "3",
+            "name": "Anh Hai Bin",
+            "role": "Lập trình viên tương lai",
+            "bio": "Thích âm nhạc, lập trình viên tương lai.",
+            "avatar": "https://lh3.googleusercontent.com/pw/AP1GczP7tZyRf0QJxI7PaiSrix6HtuQUEGSLgLanvQOzBe8rNFqyEh2Wt7hRIkkNWfahyPfjAVJ-cPULDymA-ABb-TLCb7zx9f9yvRNrzVcJxu9nG826VYsdJ9JGdyQ8PjLJX3VScqfpPqZdSx3Z-Y-dRlpKoQ=w614-h923-s-no-gm?authuser=0"
+      },
+      {
+            "id": "4",
+            "name": "Em Bo",
+            "role": "Vitamin vui vẻ",
+            "bio": "Yêu ca hát, nguồn năng lượng tích cực và là cục cưng của cả nhà.",
+            "avatar": "https://lh3.googleusercontent.com/pw/AP1GczMSMCgJkJpM2bJ-7hMJIGnOdr7ctl1RARaoAveYL3l1spxxgYhH4RZ5FmgMs8-e4DYDn8s5EobizOjEKmD5QNHI74m8_Mgx2xoJna90JcJx3e84I63RA3nz9cmWqP7gxeUt1FBRd98esxUDhB8NPYzwKg=w519-h923-s-no-gm?authuser=0"
+      }
+];
 
     const INITIAL_ALBUMS = [
-      { id: 'tet', name: 'Tết Sum Vầy', desc: 'Bữa cơm tất niên ấm áp và không khí rộn ràng trang trí hoa đào ngày Tết cổ truyền', cover: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&auto=format&fit=crop&q=80' },
-      { id: 'dulich', name: 'Du Lịch Muôn Nơi', desc: 'Những hành trình cát trắng nắng vàng, leo núi lội suối tràn ngập tiếng cười của cả nhà', cover: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&auto=format&fit=crop&q=80' },
-      { id: 'kyniem', name: 'Kỷ Niệm Đáng Nhớ', desc: 'Ngày kỷ niệm ngày cưới của Ba Mẹ, sinh nhật các con và những mốc thời gian thiêng liêng', cover: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&auto=format&fit=crop&q=80' },
-      { id: 'thuongnhat', name: 'Góc Nhỏ Thường Nhật', desc: 'Những khoảnh khắc bình dị mộc mạc bên mâm cơm ấm cúng hay buổi tối cùng đọc sách', cover: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&auto=format&fit=crop&q=80' }
-    ];
+      {
+            "id": "tet",
+            "name": "Tết Sum Vầy",
+            "desc": "Bữa cơm tất niên ấm áp và không khí rộn ràng trang trí hoa đào ngày Tết cổ truyền",
+            "cover": "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&auto=format&fit=crop&q=80"
+      },
+      {
+            "id": "dulich",
+            "name": "Du Lịch Muôn Nơi",
+            "desc": "Những hành trình cát trắng nắng vàng, leo núi lội suối tràn ngập tiếng cười của cả nhà",
+            "cover": "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&auto=format&fit=crop&q=80"
+      },
+      {
+            "id": "kyniem",
+            "name": "Kỷ Niệm Đáng Nhớ",
+            "desc": "Ngày kỷ niệm ngày cưới của Ba Mẹ, sinh nhật các con và những mốc thời gian thiêng liêng",
+            "cover": "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&auto=format&fit=crop&q=80"
+      },
+      {
+            "id": "thuongnhat",
+            "name": "Góc Nhỏ Thường Nhật",
+            "desc": "Những khoảnh khắc bình dị mộc mạc bên mâm cơm ấm cúng hay buổi tối cùng đọc sách",
+            "cover": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&auto=format&fit=crop&q=80"
+      }
+];
 
     const INITIAL_PHOTOS = [
-      { id: '1', url: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=1000&auto=format&fit=crop&q=80', caption: 'Bữa cơm sum vầy ngày cuối năm ấm áp tình thân', date: '2026-02-15', albumId: 'tet' },
-      { id: '2', url: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80', caption: 'Chuyến du lịch biển Nha Trang tràn ngập ánh nắng', date: '2025-06-20', albumId: 'dulich' },
-      { id: '3', url: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1000&auto=format&fit=crop&q=80', caption: 'Kỷ niệm ngày cưới hạnh phúc của Bố Mẹ', date: '2025-10-10', albumId: 'kyniem' },
-      { id: '4', url: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=1000&auto=format&fit=crop&q=80', caption: 'Một buổi chiều cuối tuần bình yên cả nhà cùng ngồi đọc sách', date: '2026-01-05', albumId: 'thuongnhat' },
-      { id: '5', url: 'https://images.unsplash.com/photo-1489710437560-659882b5c822?w=1000&auto=format&fit=crop&q=80', caption: 'Bé Bo đón tuổi mới lung linh sắc màu bong bóng', date: '2025-12-01', albumId: 'kyniem' },
-      { id: '6', url: 'https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=1000&auto=format&fit=crop&q=80', caption: 'Ba mẹ và các con tíu tít trang trí cành đào đón Tết', date: '2026-02-14', albumId: 'tet' }
-    ];
+      {
+            "id": "1",
+            "url": "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=1000&auto=format&fit=crop&q=80",
+            "caption": "Bữa cơm sum vầy ngày cuối năm ấm áp tình thân",
+            "date": "2026-02-15",
+            "albumId": "tet"
+      },
+      {
+            "id": "2",
+            "url": "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80",
+            "caption": "Chuyến du lịch biển Nha Trang tràn ngập ánh nắng",
+            "date": "2025-06-20",
+            "albumId": "dulich"
+      },
+      {
+            "id": "3",
+            "url": "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1000&auto=format&fit=crop&q=80",
+            "caption": "Kỷ niệm ngày cưới hạnh phúc của Bố Mẹ",
+            "date": "2025-10-10",
+            "albumId": "kyniem"
+      },
+      {
+            "id": "4",
+            "url": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=1000&auto=format&fit=crop&q=80",
+            "caption": "Một buổi chiều cuối tuần bình yên cả nhà cùng ngồi đọc sách",
+            "date": "2026-01-05",
+            "albumId": "thuongnhat"
+      },
+      {
+            "id": "5",
+            "url": "https://images.unsplash.com/photo-1489710437560-659882b5c822?w=1000&auto=format&fit=crop&q=80",
+            "caption": "Bé Bo đón tuổi mới lung linh sắc màu bong bóng",
+            "date": "2025-12-01",
+            "albumId": "kyniem"
+      },
+      {
+            "id": "6",
+            "url": "https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=1000&auto=format&fit=crop&q=80",
+            "caption": "Ba mẹ và các con tíu tít trang trí cành đào đón Tết",
+            "date": "2026-02-14",
+            "albumId": "tet"
+      }
+];
 
     const INITIAL_TIMELINE = [
-      { id: '1', year: '1998', title: 'Ngày chung đôi', desc: 'Ba Thịnh và Mẹ Nhi chính thức về chung một nhà dưới sự chúc phúc của gia đình.' },
-      { id: '2', year: '2001', title: 'Chào đời Anh Hai Bin', desc: 'Thành viên nhỏ đầu tiên xuất hiện mang theo bao niềm vui và hoài bão mới.' },
-      { id: '3', year: '2007', title: 'Chào đời Em Bo dễ thương', desc: 'Tổ ấm nhỏ đã đủ nếp đủ tẻ, rộn rã tiếng cười đùa trẻ thơ mỗi ngày.' },
-      { id: '4', year: '2018', title: 'Ngôi nhà mới, khởi đầu mới', desc: 'Cả nhà cùng chuyển về tổ ấm tự tay thiết kế, bắt đầu viết tiếp những chương hạnh phúc.' }
-    ];
+      {
+            "id": "1",
+            "year": "2005",
+            "title": "Ngày chung đôi",
+            "desc": "Ba Thịnh và Mẹ Nhi chính thức về chung một nhà dưới sự chúc phúc của gia đình."
+      },
+      {
+            "id": "2",
+            "year": "2006",
+            "title": "Chào đời Anh Hai Bin",
+            "desc": "Thành viên nhỏ đầu tiên xuất hiện mang theo bao niềm vui và hoài bão mới."
+      },
+      {
+            "id": "3",
+            "year": "2014",
+            "title": "Chào đời Em Bo dễ thương",
+            "desc": "Tổ ấm nhỏ đã đủ nếp đủ tẻ, rộn rã tiếng cười đùa trẻ thơ mỗi ngày."
+      },
+      {
+            "id": "4",
+            "year": "2022",
+            "title": "Ngôi nhà mới, khởi đầu mới",
+            "desc": "Cả nhà cùng chuyển về tổ ấm tự tay thiết kế, bắt đầu viết tiếp những chương hạnh phúc."
+      }
+];
+    // =========================================================================
 
     function App() {
       // --- STATE QUẢN LÝ DỮ LIỆU ---
