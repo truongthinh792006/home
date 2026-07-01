@@ -69,153 +69,78 @@
 
   <div id="root"></div>
 
-  <!-- Bắt đầu mã nguồn React biên dịch bởi Babel -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Cấu hình Firebase SDK từ môi trường bảo mật hoặc dùng mặc định
+    const firebaseConfig = typeof __firebase_config !== 'undefined' 
+      ? JSON.parse(__firebase_config) 
+      : {
+          apiKey: "AIzaSyAs-demoConfigKeyPlaceholderForSafety",
+          authDomain: "family-album-app.firebaseapp.com",
+          projectId: "family-album-app",
+          storageBucket: "family-album-app.appspot.com",
+          messagingSenderId: "1234567890",
+          appId: "1:1234567890:web:abcdef123456"
+        };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const auth = getAuth(app);
+
+    // Xuất ra phạm vi toàn cục để mã React (Babel) có thể dễ dàng sử dụng
+    window.FirebaseSDK = {
+      auth, db, doc, getDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, getDocs, signInAnonymously, signInWithCustomToken
+    };
+  </script>
+
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
     // =========================================================================
-    // ⚠️ PHẦN KHỞI TẠO DỮ LIỆU GỐC (DÀNH CHO KHÁCH TRUY CẬP LẦN ĐẦU)
+    // ⚠️ PHẦN KHỞI TẠO DỮ LIỆU GỐC (SẼ TỰ ĐỘNG ĐƯỢC ĐẨY LÊN FIREBASE NẾU KHO RỖNG)
     // =========================================================================
     const INITIAL_SETTINGS = {
-  "albumTitle": "Tổ Ấm Yêu Thương",
-  "albumSubtitle": "Nơi bão dừng sau cánh cửa - Kỷ niệm gia đình chúng mình",
-  "musicUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-  "anniversaryDate": "2005-08-15",
-  "adminPin": "1234",
-  "footerText": "\"Gia đình là nơi cuộc sống bắt đầu và tình yêu không bao giờ kết thúc.\""
-};
+      "albumTitle": "Tổ Ấm Yêu Thương",
+      "albumSubtitle": "Nơi bão dừng sau cánh cửa - Kỷ niệm gia đình chúng mình",
+      "musicUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+      "anniversaryDate": "1998-05-20",
+      "adminPin": "1234",
+      "footerText": "Gửi trọn vẹn yêu thương và trân quý cuộc đời."
+    };
 
-const INITIAL_MEMBERS = [
-  {
-    "id": "1",
-    "name": "Ba Thịnh",
-    "role": "Trụ cột vững chãi",
-    "bio": "Thích uống Cafe, và cực kỳ chiều chuộng cả nhà.",
-    "avatar": "https://lh3.googleusercontent.com/pw/AP1GczNGa_WpmfJiA6PiUz7Qi27W7oxjOiek3lp4L1BqJBQOICM3X1jTHkCTHbm_QI1-RuS22P4vtIjYeiWtT8EJeLrKpNmeMrrtsv1xdLmMlNrMbLWeBjkXf_ePSBxPCRa6MyKLhpbUNib3GoqhSBtcfSAcK9Vn2AKzl8H2t5Trqjo4xi8YT2q3W7zcUOBw41Uyr19ttZtD3OIkY2h4PzPYXYbsdV5tbL5sdtJN0EKBT6-jd8TCozjrnHvxY3lF06a5wIASEL86cJXpK5Zk65uzOnNPJW1JYKWddOPpJXV7JJlaxQ49O415t77xjm7ioJ0bXq7_Ftd7hLf9NjLRZTnCqJh1Rs-J95Po1XG-y4Enq_LjfTM8WJHjQbaAhYu9HZdZo-XLHcTfD2jY2pNO_Uxr3oSg_e9e4NnEd37rS2o2XsYqtE9sE7DcxmBSpPmSkAkFTZyRlxbsn8V1O9TJ_z65zOSfwIgpgYeP-SSFaG7hSk7pQ2ydqBWIAoPTqb0ZdNDknfs7zyMRFFIa9ukuLq5QLwlw9DrFqt99WCO8Zg6_XYMImDUMb5hJYaBawGv0WkT4cbpfhG7YLIZ_ehcEZW0IXY2osffu3nb-7wRqmLeW2cIf3f1o-HqhFPTVjgw08XqqwG53CFnHaSV6GAg3au0Q27NUCfMbCrnrPX1D5R15bUSrxMgTiN4fZiHIoGkhjeZVuj9_DH8FsmfgQ-XcHN5xmbqPvvlOR-btopzJrHyBd5ArEQdvQkjovrPQCpRDQmTBprAT4nSOobzpZtfsqg4y_SMwL98w41Hyhyek4SXWDioiD-8fr-BQEnZP0FQO386Djwsovg3-fGW37ySCRn2stEPqOh_TqgkviD-jdKjUtk7V_A0xQdkCDzN7n36LiKRy4cYYKVqGW3r3jgd2QElYJF-LcRh01z1TuHQwWk7hbx6avpBIU7ALyHfFY0hYHpXBJiJRzwvw2WtBqK-8G1wOq4NPSB6D-BVAKiRhJvWBonQqJlCKKw=w150-h150-c"
-  },
-  {
-    "id": "2",
-    "name": "Mẹ Nhi",
-    "role": "Bếp trưởng ấm áp",
-    "bio": "Bàn tay vàng trong làng nấu nướng, giữ ngọn lửa yêu thương cho tổ ấm.",
-    "avatar": "https://lh3.googleusercontent.com/pw/AP1GczPxm3xbJ5ULwqvCGqmGoOqu3hEPAUPKABbjz7_MG-evziHzTshFEjc7a9NW9dBqamY8a-nufuv6x-muWbHBlhfsvZprpduFpTPYvLW7poq2FXnZ1mE_AU4k3PgLQ01R3DU_y4AF3WMpMf49Vhu7-J5nNQ=w693-h923-s-no-gm?authuser=0"
-  },
-  {
-    "id": "3",
-    "name": "Anh Hai Bin",
-    "role": "Lập trình viên tương lai",
-    "bio": "Thanh niên nghiêm túc, Thích âm nhạc, lập trình viên tương lai năng động.",
-    "avatar": "https://lh3.googleusercontent.com/pw/AP1GczPGkW-stL4Huto-hQjumZ64n2Ag8wVSgpLt4wn8wJPD3TaABIZRtWm3j8RYB0odGLXX7xadUf9vp6yW--baws0GQSkOkbOJK8MaCK0uB9gKbfPzXi4iTS7jTnJJBoFtMn874plVAR9-0sEGW_vbrxnLHht3kndX0q7nwL8DjKk58GrpeBvr3V3hQFutlY1A49w9cDuSkucX39nmBfTztIaQNkOMw9L7FmXMdJ-TgUs26O0HCqFfez9XfdFtnb4mw97vgnOFW0EJWUrQquW-oSkZmGJX29MjXrl2SWcjTDY7ETRZwggSHNnauRim6DFu4soaDwPYLwhjDJsFIDOJgZXOKUqDbFmUijq1Yffi2Ta1UxciDXwiyJLdw8lD_oOA_AB5w6sUTuX65OarF1G9JoEwIY5sGkQxQHI6JQNwc575wphI3tpHrCNKqeSl4DtiTbJ1L1-gm24lcnxwvlOxxcf_5-3DxA9CkmJNrt_1e8tmBbNmNRAIAGXumDuPcTvaScKeYtapQxf4ktwtapvWjBKVgKPrbKFpHrgMy-wts-qcYoMA4j5nG9I7pC0-gsotWVkViARiDYMrgux-6DK0vd6JGr3uGyjRtZ2I_yzE1P3rfDy2uTR6PEP14pOCyyXs8A2kHLKc_kirQagVUsklbHT8JUq_DIRI0lFByJkccp0LrhswWB8rmIWmEIIgRXELoILUDx1C_7QL6rmV4jaO62SFLo3CN-tq01CtOnJcvOm25uV9CqOVo5-V6pfbYMcpsoewBGbyzCcu7L6qFY7MzKb_dHkMevf8jTSaotUCm69gU2N5FCZI0ihlQcpenJO7rB2zFkO8YEX5uJUkK5NDSUO2aL895jb2_DZZ0p0TPkkibm89OXxk8qLy7Ybms9kZfydtOohhOgTgHYHunpOZmz5rsNm-zRxktiyk78USe_I5bhE5gX2qznrSXmCc0vNCOrvbt19yVO_u_ZHAz9W95jMGwbBqyzPJMuCccJIy62WHYWan=w150-h150-c"
-  },
-  {
-    "id": "4",
-    "name": "Em Bo",
-    "role": "Vitamin vui vẻ",
-    "bio": "Yêu ca hát, nguồn năng lượng tích cực và là cục cưng của cả nhà.",
-    "avatar": "https://lh3.googleusercontent.com/pw/AP1GczMLxAiUiGfcokim4dP89103husAf0uIhkZbrxIrhgj2aeyvRlcvSkBXilmTJlLJ22QrZQdbegw0SMjRMfDnS7tnrrCNhuT-ecam5t4E9N8vrYHqadD33XhLt87eVwFKHgeJOct-dUmq604my2BxGWMYLA=w150-h150-c"
-  }
-];
+    const INITIAL_MEMBERS = [
+      { id: '1', name: 'Ba Thịnh', role: 'Trụ cột vững chãi', bio: 'Thích uống Cafe, và cực kỳ chiều chuộng cả nhà.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80' },
+      { id: '2', name: 'Mẹ Nhi', role: 'Bếp trưởng ấm áp', bio: 'Bàn tay vàng trong làng nấu nướng, giữ ngọn lửa yêu thương cho tổ ấm.', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80' },
+      { id: '3', name: 'Anh Hai Bin', role: 'Lập trình viên tương lai', bio: 'Thích âm nhạc, lập trình viên tương lai năng động.', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80' },
+      { id: '4', name: 'Em Bo', role: 'Vitamin vui vẻ', bio: 'Yêu ca hát, nguồn năng lượng tích cực và là cục cưng của cả nhà.', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80' }
+    ];
 
-const INITIAL_ALBUMS = [
-  {
-    "id": "tet",
-    "name": "Tết Sum Vầy",
-    "desc": "Bữa cơm tất niên ấm áp và không khí rộn ràng trang trí hoa đào ngày Tết cổ truyền",
-    "cover": "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    "id": "dulich",
-    "name": "Du Lịch Muôn Nơi",
-    "desc": "Những hành trình cát trắng nắng vàng, leo núi lội suối tràn ngập tiếng cười của cả nhà",
-    "cover": "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    "id": "kyniem",
-    "name": "Kỷ Niệm Đáng Nhớ",
-    "desc": "Ngày kỷ niệm ngày cưới của Ba Mẹ, sinh nhật các con và những mốc thời gian thiêng liêng",
-    "cover": "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&auto=format&fit=crop&q=80"
-  },
-  {
-    "id": "thuongnhat",
-    "name": "Góc Nhỏ Thường Nhật",
-    "desc": "Những khoảnh khắc bình dị mộc mạc bên mâm cơm ấm cúng hay buổi tối cùng đọc sách",
-    "cover": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&auto=format&fit=crop&q=80"
-  }
-];
+    const INITIAL_ALBUMS = [
+      { id: 'tet', name: 'Tết Sum Vầy', desc: 'Bữa cơm tất niên ấm áp và không khí rộn ràng trang trí hoa đào ngày Tết cổ truyền', cover: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&auto=format&fit=crop&q=80' },
+      { id: 'dulich', name: 'Du Lịch Muôn Nơi', desc: 'Những hành trình cát trắng nắng vàng, leo núi lội suối tràn ngập tiếng cười của cả nhà', cover: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&auto=format&fit=crop&q=80' },
+      { id: 'kyniem', name: 'Kỷ Niệm Đáng Nhớ', desc: 'Ngày kỷ niệm ngày cưới của Ba Mẹ, sinh nhật các con và những mốc thời gian thiêng liêng', cover: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&auto=format&fit=crop&q=80' },
+      { id: 'thuongnhat', name: 'Góc Nhỏ Thường Nhật', desc: 'Những khoảnh khắc bình dị mộc mạc bên mâm cơm ấm cúng hay buổi tối cùng đọc sách', cover: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&auto=format&fit=crop&q=80' }
+    ];
 
-const INITIAL_PHOTOS = [
-  {
-    "id": "1",
-    "url": "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=1000&auto=format&fit=crop&q=80",
-    "caption": "Bữa cơm sum vầy ngày cuối năm ấm áp tình thân",
-    "date": "2026-02-15",
-    "albumId": "tet"
-  },
-  {
-    "id": "2",
-    "url": "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80",
-    "caption": "Chuyến du lịch biển Nha Trang tràn ngập ánh nắng",
-    "date": "2025-06-20",
-    "albumId": "dulich"
-  },
-  {
-    "id": "3",
-    "url": "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1000&auto=format&fit=crop&q=80",
-    "caption": "Kỷ niệm ngày cưới hạnh phúc của Bố Mẹ",
-    "date": "2025-10-10",
-    "albumId": "kyniem"
-  },
-  {
-    "id": "4",
-    "url": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=1000&auto=format&fit=crop&q=80",
-    "caption": "Một buổi chiều cuối tuần bình yên cả nhà cùng ngồi đọc sách",
-    "date": "2026-01-05",
-    "albumId": "thuongnhat"
-  },
-  {
-    "id": "5",
-    "url": "https://images.unsplash.com/photo-1489710437560-659882b5c822?w=1000&auto=format&fit=crop&q=80",
-    "caption": "Bé Bo đón tuổi mới lung linh sắc màu bong bóng",
-    "date": "2025-12-01",
-    "albumId": "kyniem"
-  },
-  {
-    "id": "6",
-    "url": "https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=1000&auto=format&fit=crop&q=80",
-    "caption": "Ba mẹ và các con tíu tít trang trí cành đào đón Tết",
-    "date": "2026-02-14",
-    "albumId": "tet"
-  }
-];
+    const INITIAL_PHOTOS = [
+      { id: '1', url: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=1000&auto=format&fit=crop&q=80', caption: 'Bữa cơm sum vầy ngày cuối năm ấm áp tình thân', date: '2026-02-15', albumId: 'tet' },
+      { id: '2', url: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80', caption: 'Chuyến du lịch biển Nha Trang tràn ngập ánh nắng', date: '2025-06-20', albumId: 'dulich' },
+      { id: '3', url: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1000&auto=format&fit=crop&q=80', caption: 'Kỷ niệm ngày cưới hạnh phúc của Bố Mẹ', date: '2025-10-10', albumId: 'kyniem' },
+      { id: '4', url: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=1000&auto=format&fit=crop&q=80', caption: 'Một buổi chiều cuối tuần bình yên cả nhà cùng ngồi đọc sách', date: '2026-01-05', albumId: 'thuongnhat' },
+      { id: '5', url: 'https://images.unsplash.com/photo-1489710437560-659882b5c822?w=1000&auto=format&fit=crop&q=80', caption: 'Bé Bo đón tuổi mới lung linh sắc màu bong bóng', date: '2025-12-01', albumId: 'kyniem' },
+      { id: '6', url: 'https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=1000&auto=format&fit=crop&q=80', caption: 'Ba mẹ và các con tíu tít trang trí cành đào đón Tết', date: '2026-02-14', albumId: 'tet' }
+    ];
 
-const INITIAL_TIMELINE = [
-  {
-    "id": "1",
-    "year": "2005",
-    "title": "Ngày chung đôi",
-    "desc": "Ba Thịnh và Mẹ Nhi chính thức về chung một nhà dưới sự chúc phúc của gia đình."
-  },
-  {
-    "id": "2",
-    "year": "2006",
-    "title": "Chào đời Anh Hai Bin",
-    "desc": "Thành viên nhỏ đầu tiên xuất hiện mang theo bao niềm vui và hoài bão mới."
-  },
-  {
-    "id": "3",
-    "year": "2014",
-    "title": "Chào đời Em Bo dễ thương",
-    "desc": "Tổ ấm nhỏ đã đủ nếp đủ tẻ, rộn rã tiếng cười đùa trẻ thơ mỗi ngày."
-  },
-  {
-    "id": "4",
-    "year": "2022",
-    "title": "Ngôi nhà mới, khởi đầu mới",
-    "desc": "Cả nhà cùng chuyển về tổ ấm tự tay thiết kế, bắt đầu viết tiếp những chương hạnh phúc."
-  }
-];
+    const INITIAL_TIMELINE = [
+      { id: '1', year: '1998', title: 'Ngày chung đôi', desc: 'Ba Thịnh và Mẹ Nhi chính thức về chung một nhà dưới sự chúc phúc của gia đình.' },
+      { id: '2', year: '2001', title: 'Chào đời Anh Hai Bin', desc: 'Thành viên nhỏ đầu tiên xuất hiện mang theo bao niềm vui và hoài bão mới.' },
+      { id: '3', year: '2007', title: 'Chào đời Em Bo dễ thương', desc: 'Tổ ấm nhỏ đã đủ nếp đủ tẻ, rộn rã tiếng cười đùa trẻ thơ mỗi ngày.' },
+      { id: '4', year: '2018', title: 'Ngôi nhà mới, khởi đầu mới', desc: 'Cả nhà cùng chuyển về tổ ấm tự tay thiết kế, bắt đầu viết tiếp những chương hạnh phúc.' }
+    ];
 
-    // --- ICONS SVG KHAI BÁO TRƯỚC ĐỂ TRÁNH LỖI BIÊN DỊCH ---
     const HeartIcon = ({ className = "w-6 h-6" }) => (
       <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className={className}>
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -229,13 +154,6 @@ const INITIAL_TIMELINE = [
       </svg>
     );
 
-    const TrashIcon = ({ className = "w-5 h-5" }) => (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-      </svg>
-    );
-
-    // --- BỘ GIẢI MÃ CHUỒI MÃ HÓA GOOGLE PHOTOS CHUYÊN SÂU ---
     const decodeGooglePhotosHtml = (html) => {
       if (!html) return '';
       try {
@@ -264,35 +182,27 @@ const INITIAL_TIMELINE = [
     };
 
     function App() {
-      // --- STATE QUẢN LÝ DỮ LIỆU ---
-      const [albumTitle, setAlbumTitle] = useState(() => localStorage.getItem('family_albumTitle') || INITIAL_SETTINGS.albumTitle);
-      const [albumSubtitle, setAlbumSubtitle] = useState(() => localStorage.getItem('family_albumSubtitle') || INITIAL_SETTINGS.albumSubtitle);
-      const [musicUrl, setMusicUrl] = useState(() => localStorage.getItem('family_musicUrl') || INITIAL_SETTINGS.musicUrl);
-      const [anniversaryDate, setAnniversaryDate] = useState(() => localStorage.getItem('family_anniversaryDate') || INITIAL_SETTINGS.anniversaryDate);
-      const [adminPin, setAdminPin] = useState(() => localStorage.getItem('family_adminPin') || INITIAL_SETTINGS.adminPin);
-      const [footerText, setFooterText] = useState(() => localStorage.getItem('family_footerText') || INITIAL_SETTINGS.footerText || "Gửi trọn vẹn yêu thương và trân quý cuộc đời.");
+      // --- KẾT NỐI FIRESTORE & XÁC THỰC ---
+      const [isAuthed, setIsAuthed] = useState(false);
+      const [appId] = useState(() => typeof __app_id !== 'undefined' ? __app_id : 'default-family-album');
+      const [db] = useState(() => window.FirebaseSDK.db);
+      const [auth] = useState(() => window.FirebaseSDK.auth);
+
+      // --- TRẠNG THÁI HIỂN THỊ CHÍNH (ĐỒNG BỘ ĐÁM MÂY) ---
+      const [albumTitle, setAlbumTitle] = useState(INITIAL_SETTINGS.albumTitle);
+      const [albumSubtitle, setAlbumSubtitle] = useState(INITIAL_SETTINGS.albumSubtitle);
+      const [musicUrl, setMusicUrl] = useState(INITIAL_SETTINGS.musicUrl);
+      const [anniversaryDate, setAnniversaryDate] = useState(INITIAL_SETTINGS.anniversaryDate);
+      const [adminPin, setAdminPin] = useState(INITIAL_SETTINGS.adminPin);
+      const [footerText, setFooterText] = useState(INITIAL_SETTINGS.footerText);
       
-      const [albums, setAlbums] = useState(() => {
-        const saved = localStorage.getItem('family_albums');
-        return saved ? JSON.parse(saved) : INITIAL_ALBUMS;
-      });
+      const [albums, setAlbums] = useState([]);
+      const [members, setMembers] = useState([]);
+      const [photos, setPhotos] = useState([]);
+      const [timeline, setTimeline] = useState([]);
 
-      const [members, setMembers] = useState(() => {
-        const saved = localStorage.getItem('family_members');
-        return saved ? JSON.parse(saved) : INITIAL_MEMBERS;
-      });
-
-      const [photos, setPhotos] = useState(() => {
-        const saved = localStorage.getItem('family_photos');
-        return saved ? JSON.parse(saved) : INITIAL_PHOTOS;
-      });
-
-      const [timeline, setTimeline] = useState(() => {
-        const saved = localStorage.getItem('family_timeline');
-        return saved ? JSON.parse(saved) : INITIAL_TIMELINE;
-      });
-
-      // --- TRẠNG THÁI HIỂN THỊ ---
+      // --- TRẠNG THÁI KHÁC ---
+      const [isLoading, setIsLoading] = useState(true);
       const [activePhotoIndex, setActivePhotoIndex] = useState(null); 
       const [isPlaying, setIsPlaying] = useState(false);
       const [showSettings, setShowSettings] = useState(false);
@@ -300,38 +210,35 @@ const INITIAL_TIMELINE = [
       const [activeAlbumId, setActiveAlbumId] = useState(null);
       const [viewMode, setViewMode] = useState('album');
 
-      // --- TRẠNG THÁI TRÌNH CHIẾU TỰ ĐỘNG (SLIDESHOW) VÀ VUỐT CHẠM ---
+      // --- TRÌNH CHIẾU TỰ ĐỘNG VÀ VUỐT CHẠM ---
       const [isSlideshowActive, setIsSlideshowActive] = useState(false);
       const touchStartX = useRef(0);
       const touchEndX = useRef(0);
 
-      // --- TRẠNG THÁI TẠM THỜI TRONG BẢNG ĐIỀU KHIỂN ---
-      const [tempTitle, setTempAlbumTitle] = useState(albumTitle);
-      const [tempSubtitle, setTempAlbumSubtitle] = useState(albumSubtitle);
-      const [tempAnniversaryDate, setTempAnniversaryDate] = useState(anniversaryDate);
-      const [tempMusicUrl, setTempMusicUrl] = useState(musicUrl);
-      const [tempAdminPin, setTempAdminPin] = useState(adminPin);
-      const [tempFooterText, setTempFooterText] = useState(footerText);
+      // --- BIẾN PHỤ TẠM THỜI CHO KHUNG ĐIỀU KHIỂN ---
+      const [tempTitle, setTempAlbumTitle] = useState('');
+      const [tempSubtitle, setTempAlbumSubtitle] = useState('');
+      const [tempAnniversaryDate, setTempAnniversaryDate] = useState('');
+      const [tempMusicUrl, setTempMusicUrl] = useState('');
+      const [tempAdminPin, setTempAdminPin] = useState('');
+      const [tempFooterText, setTempFooterText] = useState('');
 
-      // --- TRẠNG THÁI CHỌN ẢNH ĐẠI DIỆN / BÌA ALBUM TỪ ALBUM ---
+      // --- LỰA CHỌN PHỤ TRONG KHO ---
       const [activeAvatarSelectorMemberId, setActiveAvatarSelectorMemberId] = useState(null);
       const [activeCoverSelectorAlbumId, setActiveCoverSelectorAlbumId] = useState(null);
-
-      // --- TRẠNG THÁI TRÍCH XUẤT ẢNH ĐƠN TỪ MÃ HTML ---
       const [htmlExtractorTarget, setHtmlExtractorTarget] = useState(null); 
       const [singleHtmlInput, setSingleHtmlInput] = useState('');
 
-      // --- BẢO MẬT: MÃ PIN ---
+      // --- BẢO MẬT & ĐỒNG BỘ GOOGLE PHOTOS ---
       const [showPinModal, setShowPinModal] = useState(false);
       const [pinInput, setPinInput] = useState('');
       const [pinError, setPinError] = useState('');
       const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(false);
 
-      // --- TRẠNG THÁI ĐỒNG BỘ GOOGLE PHOTOS ---
       const [inputAlbumUrl, setInputAlbumUrl] = useState('');
       const [inputDirectUrls, setInputDirectUrls] = useState(''); 
       const [importTargetType, setImportTargetType] = useState('existing'); 
-      const [importAlbumId, setImportAlbumId] = useState(() => INITIAL_ALBUMS[0]?.id || 'tet');
+      const [importAlbumId, setImportAlbumId] = useState('');
       const [importNewAlbumName, setImportNewAlbumName] = useState('');
       const [isScraping, setIsScraping] = useState(false);
       const [scrapeError, setScrapeError] = useState(null);
@@ -342,7 +249,7 @@ const INITIAL_TIMELINE = [
       
       const audioRef = useRef(null);
 
-      // --- Hộp thoại thông báo nội bộ thay thế Alert & Confirm ---
+      // --- HỘP THOẠI NỘI BỘ THAY THẾ ALERT & CONFIRM ---
       const [customAlert, setCustomAlert] = useState({ show: false, message: "" });
       const [customConfirm, setCustomConfirm] = useState({ show: false, message: "", onConfirm: null });
 
@@ -359,33 +266,157 @@ const INITIAL_TIMELINE = [
         ? photos 
         : (activeAlbumId ? photos.filter(p => p.albumId === activeAlbumId) : photos);
 
-      // --- ĐỒNG BỘ LOCAL STORAGE ---
       useEffect(() => {
-        localStorage.setItem('family_albumTitle', albumTitle);
-        localStorage.setItem('family_albumSubtitle', albumSubtitle);
-        localStorage.setItem('family_musicUrl', musicUrl);
-        localStorage.setItem('family_anniversaryDate', anniversaryDate);
-        localStorage.setItem('family_adminPin', adminPin);
-        localStorage.setItem('family_footerText', footerText);
-      }, [albumTitle, albumSubtitle, musicUrl, anniversaryDate, adminPin, footerText]);
+        const performAuth = async () => {
+          try {
+            let cred;
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+              cred = await window.FirebaseSDK.signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+              cred = await window.FirebaseSDK.signInAnonymously(auth);
+            }
+            if (cred.user) {
+              setIsAuthed(true);
+            }
+          } catch (error) {
+            console.error("Lỗi xác thực Firebase:", error);
+            // Vẫn cho phép hiển thị nếu Firebase bị chặn hoặc lỗi mạng
+            setIsLoading(false);
+          }
+        };
+        performAuth();
+      }, []);
 
       useEffect(() => {
-        localStorage.setItem('family_albums', JSON.stringify(albums));
-      }, [albums]);
+        if (!isAuthed) return;
 
-      useEffect(() => {
-        localStorage.setItem('family_members', JSON.stringify(members));
-      }, [members]);
+        // 1. Đồng bộ cấu hình chung (Settings)
+        const settingsRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main');
+        const unsubscribeSettings = window.FirebaseSDK.onSnapshot(settingsRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            setAlbumTitle(data.albumTitle || INITIAL_SETTINGS.albumTitle);
+            setAlbumSubtitle(data.albumSubtitle || INITIAL_SETTINGS.albumSubtitle);
+            setMusicUrl(data.musicUrl || INITIAL_SETTINGS.musicUrl);
+            setAnniversaryDate(data.anniversaryDate || INITIAL_SETTINGS.anniversaryDate);
+            setAdminPin(data.adminPin || INITIAL_SETTINGS.adminPin);
+            setFooterText(data.footerText || INITIAL_SETTINGS.footerText);
 
-      useEffect(() => {
-        localStorage.setItem('family_photos', JSON.stringify(photos));
-      }, [photos]);
+            // Cập nhật giá trị hiển thị tạm thời
+            setTempAlbumTitle(data.albumTitle || INITIAL_SETTINGS.albumTitle);
+            setTempAlbumSubtitle(data.albumSubtitle || INITIAL_SETTINGS.albumSubtitle);
+            setTempAnniversaryDate(data.anniversaryDate || INITIAL_SETTINGS.anniversaryDate);
+            setTempMusicUrl(data.musicUrl || INITIAL_SETTINGS.musicUrl);
+            setTempAdminPin(data.adminPin || INITIAL_SETTINGS.adminPin);
+            setTempFooterText(data.footerText || INITIAL_SETTINGS.footerText);
+          } else {
+            // Nếu chưa có dữ liệu đám mây, tiến hành khởi tạo dữ liệu mẫu gốc
+            initializeDefaultFirestoreData();
+          }
+        }, (err) => {
+          console.error("Lỗi đồng bộ Settings:", err);
+        });
 
-      useEffect(() => {
-        localStorage.setItem('family_timeline', JSON.stringify(timeline));
-      }, [timeline]);
+        // 2. Đồng bộ danh sách thành viên (Members)
+        const membersRef = window.FirebaseSDK.collection(db, 'artifacts', appId, 'public', 'data', 'members');
+        const unsubscribeMembers = window.FirebaseSDK.onSnapshot(membersRef, (snap) => {
+          const list = [];
+          snap.forEach((doc) => {
+            list.push({ id: doc.id, ...doc.data() });
+          });
+          setMembers(list);
+        }, (err) => {
+          console.error("Lỗi đồng bộ Members:", err);
+        });
 
-      // Tính số ngày bên nhau dựa trên ngày kỷ niệm
+        // 3. Đồng bộ danh sách quyển Album (Albums)
+        const albumsRef = window.FirebaseSDK.collection(db, 'artifacts', appId, 'public', 'data', 'albums');
+        const unsubscribeAlbums = window.FirebaseSDK.onSnapshot(albumsRef, (snap) => {
+          const list = [];
+          snap.forEach((doc) => {
+            list.push({ id: doc.id, ...doc.data() });
+          });
+          setAlbums(list);
+          if (list.length > 0 && !importAlbumId) {
+            setImportAlbumId(list[0].id);
+          }
+        }, (err) => {
+          console.error("Lỗi đồng bộ Albums:", err);
+        });
+
+        // 4. Đồng bộ kho hình ảnh (Photos)
+        const photosRef = window.FirebaseSDK.collection(db, 'artifacts', appId, 'public', 'data', 'photos');
+        const unsubscribePhotos = window.FirebaseSDK.onSnapshot(photosRef, (snap) => {
+          const list = [];
+          snap.forEach((doc) => {
+            list.push({ id: doc.id, ...doc.data() });
+          });
+          // Sắp xếp ngày mới nhất lên trên
+          list.sort((a, b) => new Date(b.date) - new Date(a.date));
+          setPhotos(list);
+          setIsLoading(false);
+        }, (err) => {
+          console.error("Lỗi đồng bộ Photos:", err);
+          setIsLoading(false);
+        });
+
+        // 5. Đồng bộ dòng thời gian (Timeline)
+        const timelineRef = window.FirebaseSDK.collection(db, 'artifacts', appId, 'public', 'data', 'timeline');
+        const unsubscribeTimeline = window.FirebaseSDK.onSnapshot(timelineRef, (snap) => {
+          const list = [];
+          snap.forEach((doc) => {
+            list.push({ id: doc.id, ...doc.data() });
+          });
+          // Sắp xếp theo năm tăng dần
+          list.sort((a, b) => parseInt(a.year) - parseInt(b.year));
+          setTimeline(list);
+        }, (err) => {
+          console.error("Lỗi đồng bộ Timeline:", err);
+        });
+
+        return () => {
+          unsubscribeSettings();
+          unsubscribeMembers();
+          unsubscribeAlbums();
+          unsubscribePhotos();
+          unsubscribeTimeline();
+        };
+      }, [isAuthed]);
+
+      const initializeDefaultFirestoreData = async () => {
+        try {
+          // Ghi dữ liệu cấu hình
+          const settingsRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main');
+          await window.FirebaseSDK.setDoc(settingsRef, INITIAL_SETTINGS);
+
+          // Ghi dữ liệu thành viên
+          for (const m of INITIAL_MEMBERS) {
+            const mRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'members', m.id);
+            await window.FirebaseSDK.setDoc(mRef, { name: m.name, role: m.role, bio: m.bio, avatar: m.avatar });
+          }
+
+          // Ghi dữ liệu Album
+          for (const a of INITIAL_ALBUMS) {
+            const aRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'albums', a.id);
+            await window.FirebaseSDK.setDoc(aRef, { name: a.name, desc: a.desc, cover: a.cover });
+          }
+
+          // Ghi dữ liệu ảnh mẫu
+          for (const p of INITIAL_PHOTOS) {
+            const pRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'photos', p.id);
+            await window.FirebaseSDK.setDoc(pRef, { url: p.url, caption: p.caption, date: p.date, albumId: p.albumId });
+          }
+
+          // Ghi dữ liệu dòng thời gian
+          for (const t of INITIAL_TIMELINE) {
+            const tRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'timeline', t.id);
+            await window.FirebaseSDK.setDoc(tRef, { year: t.year, title: t.title, desc: t.desc });
+          }
+        } catch (error) {
+          console.error("Lỗi khởi tạo dữ liệu mẫu đám mây:", error);
+        }
+      };
+
       useEffect(() => {
         const calculateDays = () => {
           const start = new Date(anniversaryDate);
@@ -399,7 +430,6 @@ const INITIAL_TIMELINE = [
         return () => clearInterval(interval);
       }, [anniversaryDate]);
 
-      // Quản lý trình phát nhạc nền
       useEffect(() => {
         if (audioRef.current) {
           audioRef.current.loop = true;
@@ -413,7 +443,6 @@ const INITIAL_TIMELINE = [
         }
       }, [isPlaying, musicUrl]);
 
-      // --- TRÌNH CHIẾU TỰ ĐỘNG ---
       useEffect(() => {
         let intervalId;
         if (isSlideshowActive && activePhotoIndex !== null) {
@@ -440,7 +469,6 @@ const INITIAL_TIMELINE = [
         setActivePhotoIndex((prev) => (prev - 1 + filteredPhotos.length) % filteredPhotos.length);
       };
 
-      // Xử lý vuốt màn hình chuyển ảnh
       const handleTouchStart = (e) => {
         touchStartX.current = e.changedTouches[0].clientX;
       };
@@ -455,26 +483,31 @@ const INITIAL_TIMELINE = [
         const diff = touchStartX.current - touchEndX.current;
         if (Math.abs(diff) > threshold) {
           if (diff > 0) {
-            nextPhoto(); // Vuốt sang trái -> ảnh tiếp theo
+            nextPhoto();
           } else {
-            prevPhoto(); // Vuốt sang phải -> ảnh trước đó
+            prevPhoto();
           }
         }
       };
 
-      // Đóng và lưu cấu hình chung
-      const handleSaveAllAndClose = () => {
-        setAlbumTitle(tempTitle);
-        setAlbumSubtitle(tempSubtitle);
-        setAnniversaryDate(tempAnniversaryDate);
-        setMusicUrl(tempMusicUrl);
-        setAdminPin(tempAdminPin);
-        setFooterText(tempFooterText);
-        setShowSettings(false);
-        showCustomAlert("Đã lưu trữ thành công các thay đổi!");
+      const handleSaveAllAndClose = async () => {
+        try {
+          const settingsRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main');
+          await window.FirebaseSDK.setDoc(settingsRef, {
+            albumTitle: tempTitle,
+            albumSubtitle: tempSubtitle,
+            musicUrl: tempMusicUrl,
+            anniversaryDate: tempAnniversaryDate,
+            adminPin: tempAdminPin,
+            footerText: tempFooterText
+          });
+          setShowSettings(false);
+          showCustomAlert("Đồng bộ dữ liệu cài đặt mới lên mây thành công!");
+        } catch (error) {
+          showCustomAlert("Không thể lưu cấu hình: " + error.message);
+        }
       };
 
-      // Xác thực mở bảng cài đặt bằng mã PIN
       const handleSettingsClick = () => {
         if (isAdminAuthenticated) {
           setShowSettings(true);
@@ -496,7 +529,6 @@ const INITIAL_TIMELINE = [
         }
       };
 
-      // --- HÀM TẠO CHUỖI MÃ CẤU HÌNH GITHUB ĐỂ DÁN ĐÈ TRỰC TIẾP ---
       const getGeneratedConfigString = () => {
         const settingsObj = {
           albumTitle,
@@ -511,7 +543,6 @@ const INITIAL_TIMELINE = [
 
       const handleCopyConfigToClipboard = () => {
         const text = getGeneratedConfigString();
-        // Sao chép an toàn bằng giải pháp thay thế document.execCommand để tương thích trong iframe
         const textArea = document.createElement("textarea");
         textArea.value = text;
         document.body.appendChild(textArea);
@@ -527,45 +558,39 @@ const INITIAL_TIMELINE = [
 
       const handleRestoreFromGithubDefaults = () => {
         showCustomConfirm(
-          'Bạn có muốn hủy bỏ toàn bộ thay đổi tạm thời trên trình duyệt và tải lại cấu hình gốc từ mã nguồn HTML không?',
-          () => {
-            setAlbumTitle(INITIAL_SETTINGS.albumTitle);
-            setAlbumSubtitle(INITIAL_SETTINGS.albumSubtitle);
-            setMusicUrl(INITIAL_SETTINGS.musicUrl);
-            setAnniversaryDate(INITIAL_SETTINGS.anniversaryDate);
-            setAdminPin(INITIAL_SETTINGS.adminPin);
-            setFooterText(INITIAL_SETTINGS.footerText || "Gửi trọn vẹn yêu thương và trân quý cuộc đời.");
-            setAlbums(INITIAL_ALBUMS);
-            setMembers(INITIAL_MEMBERS);
-            setPhotos(INITIAL_PHOTOS);
-            setTimeline(INITIAL_TIMELINE);
-            setShowSettings(false);
-            showCustomAlert("Đồng bộ ngược lại cấu hình gốc thành công!");
+          'Bạn có muốn đặt lại cấu hình trên đám mây và đồng bộ lại bộ dữ liệu ban đầu gốc không?',
+          async () => {
+            try {
+              setIsLoading(true);
+              await initializeDefaultFirestoreData();
+              setShowSettings(false);
+              showCustomAlert("Đồng bộ ngược cấu hình gốc ban đầu thành công!");
+            } catch (error) {
+              showCustomAlert("Lỗi đồng bộ gốc: " + error.message);
+            } finally {
+              setIsLoading(false);
+            }
           }
         );
       };
 
       const handleResetData = () => {
         showCustomConfirm(
-          'Bạn có chắc muốn làm trống và đặt lại mẫu gốc ban đầu không?',
-          () => {
-            localStorage.clear();
-            setAlbumTitle(INITIAL_SETTINGS.albumTitle);
-            setAlbumSubtitle(INITIAL_SETTINGS.albumSubtitle);
-            setMusicUrl(INITIAL_SETTINGS.musicUrl);
-            setAnniversaryDate(INITIAL_SETTINGS.anniversaryDate);
-            setAdminPin(INITIAL_SETTINGS.adminPin);
-            setFooterText(INITIAL_SETTINGS.footerText || "Gửi trọn vẹn yêu thương và trân quý cuộc đời.");
-            setAlbums(INITIAL_ALBUMS);
-            setMembers(INITIAL_MEMBERS);
-            setPhotos(INITIAL_PHOTOS);
-            setTimeline(INITIAL_TIMELINE);
-            showCustomAlert("Đã khôi phục hoàn toàn dữ liệu ban đầu.");
+          'Bạn có chắc chắn muốn làm trống dữ liệu đám mây và đặt lại mẫu gốc ban đầu không?',
+          async () => {
+            try {
+              setIsLoading(true);
+              await initializeDefaultFirestoreData();
+              showCustomAlert("Đã khôi phục hoàn toàn dữ liệu ban đầu lên Đám mây.");
+            } catch (error) {
+              showCustomAlert("Lỗi khôi phục: " + error.message);
+            } finally {
+              setIsLoading(false);
+            }
           }
         );
       };
 
-      // --- TẢI FILE SAO LƯU (.JSON) VÀ KHÔI PHỤC ---
       const handleExportBackup = () => {
         const backupData = {
           albumTitle, albumSubtitle, musicUrl, anniversaryDate, adminPin, footerText,
@@ -586,123 +611,233 @@ const INITIAL_TIMELINE = [
         if (!e.target.files || e.target.files.length === 0) return;
         
         fileReader.readAsText(e.target.files[0], "UTF-8");
-        fileReader.onload = (event) => {
+        fileReader.onload = async (event) => {
           try {
             const parsed = JSON.parse(event.target.result);
-            if (parsed.albumTitle) setAlbumTitle(parsed.albumTitle);
-            if (parsed.albumSubtitle) setAlbumSubtitle(parsed.albumSubtitle);
-            if (parsed.musicUrl) setMusicUrl(parsed.musicUrl);
-            if (parsed.anniversaryDate) setAnniversaryDate(parsed.anniversaryDate);
-            if (parsed.adminPin) setAdminPin(parsed.adminPin);
-            if (parsed.footerText) setFooterText(parsed.footerText);
-            if (parsed.albums) setAlbums(parsed.albums);
-            if (parsed.members) setMembers(parsed.members);
-            if (parsed.photos) setPhotos(parsed.photos);
-            if (parsed.timeline) setTimeline(parsed.timeline);
+            setIsLoading(true);
             
-            showCustomAlert("🎉 Khôi phục dữ liệu từ tệp sao lưu JSON thành công!");
+            // 1. Đồng bộ cấu hình
+            if (parsed.albumTitle) {
+              const settingsRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'main');
+              await window.FirebaseSDK.setDoc(settingsRef, {
+                albumTitle: parsed.albumTitle,
+                albumSubtitle: parsed.albumSubtitle || '',
+                musicUrl: parsed.musicUrl || '',
+                anniversaryDate: parsed.anniversaryDate || '',
+                adminPin: parsed.adminPin || '1234',
+                footerText: parsed.footerText || ''
+              });
+            }
+
+            // 2. Đồng bộ thành viên
+            if (parsed.members) {
+              for (const m of parsed.members) {
+                const mRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'members', m.id);
+                await window.FirebaseSDK.setDoc(mRef, { name: m.name, role: m.role, bio: m.bio, avatar: m.avatar });
+              }
+            }
+
+            // 3. Đồng bộ Albums
+            if (parsed.albums) {
+              for (const a of parsed.albums) {
+                const aRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'albums', a.id);
+                await window.FirebaseSDK.setDoc(aRef, { name: a.name, desc: a.desc, cover: a.cover });
+              }
+            }
+
+            // 4. Đồng bộ Photos
+            if (parsed.photos) {
+              for (const p of parsed.photos) {
+                const pRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'photos', p.id);
+                await window.FirebaseSDK.setDoc(pRef, { url: p.url, caption: p.caption, date: p.date, albumId: p.albumId });
+              }
+            }
+
+            // 5. Đồng bộ Timeline
+            if (parsed.timeline) {
+              for (const t of parsed.timeline) {
+                const tRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'timeline', t.id);
+                await window.FirebaseSDK.setDoc(tRef, { year: t.year, title: t.title, desc: t.desc });
+              }
+            }
+            
+            showCustomAlert("🎉 Khôi phục toàn vẹn dữ liệu từ tệp sao lưu JSON lên Đám mây thành công!");
           } catch (error) {
-            showCustomAlert("⚠️ File sao lưu tải lên không đúng cấu trúc.");
+            showCustomAlert("⚠️ Định dạng tệp sao lưu tải lên bị lỗi hoặc thiếu cấu trúc.");
+          } finally {
+            setIsLoading(false);
           }
         };
       };
 
-      // --- NẠP LINK ẢNH ĐƠN LẺ THỦ CÔNG ---
-      const handleImportDirectLinks = (targetType, albumId, newName) => {
+      const handleImportDirectLinks = async (targetType, albumId, newName) => {
         if (!inputDirectUrls.trim()) return;
         const lines = inputDirectUrls.split('\n').map(l => l.trim()).filter(l => l.length > 0);
         
         let finalAlbumId = albumId;
-        if (targetType === 'new') {
-          const resolvedName = newName.trim() || `Album mới (${new Date().toLocaleDateString('vi-VN')})`;
-          finalAlbumId = 'album_' + Date.now().toString();
-          const newAlbum = {
-            id: finalAlbumId,
-            name: resolvedName,
-            desc: `Bộ sưu tập gồm ${lines.length} ảnh nạp thủ công.`,
-            cover: lines[0] || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600'
-          };
-          setAlbums([...albums, newAlbum]);
+        try {
+          setIsScraping(true);
+          if (targetType === 'new') {
+            const resolvedName = newName.trim() || `Album mới (${new Date().toLocaleDateString('vi-VN')})`;
+            finalAlbumId = 'album_' + Date.now().toString();
+            const aRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'albums', finalAlbumId);
+            await window.FirebaseSDK.setDoc(aRef, {
+              name: resolvedName,
+              desc: `Bộ sưu tập gồm ${lines.length} ảnh nạp thủ công.`,
+              cover: lines[0] || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600'
+            });
+          }
+
+          const todayString = new Date().toISOString().split('T')[0];
+          for (let i = 0; i < lines.length; i++) {
+            const photoId = `direct_${Date.now()}_${i}`;
+            const pRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'photos', photoId);
+            await window.FirebaseSDK.setDoc(pRef, {
+              url: lines[i],
+              caption: `Kỷ niệm nạp thủ công #${i + 1}`,
+              date: todayString,
+              albumId: finalAlbumId
+            });
+          }
+
+          setInputDirectUrls('');
+          setScrapeSuccess(`🎉 Đã nạp thành công ${lines.length} ảnh lên Đám mây!`);
+          showCustomAlert(`Nạp thành công ${lines.length} hình ảnh lên đám mây.`);
+        } catch (error) {
+          showCustomAlert("Lỗi nạp ảnh: " + error.message);
+        } finally {
+          setIsScraping(false);
         }
-
-        const todayString = new Date().toISOString().split('T')[0];
-        const newPhotos = lines.map((url, i) => ({
-          id: `direct_${Date.now()}_${i}`,
-          url: url,
-          caption: `Kỷ niệm nạp thủ công #${i + 1}`,
-          date: todayString,
-          albumId: finalAlbumId
-        }));
-
-        setPhotos([...newPhotos, ...photos]);
-        setInputDirectUrls('');
-        setScrapeSuccess(`🎉 Đã nạp thành công ${newPhotos.length} ảnh đơn lẻ vào album!`);
-        showCustomAlert(`Nạp thành công ${newPhotos.length} hình ảnh.`);
       };
 
-      // --- CÁC THAO TÁC SỬA ĐỔI THÀNH VIÊN ---
-      const handleAddMember = () => {
-        const newMember = { id: Date.now().toString(), name: 'Thành viên mới', role: 'Vai trò', bio: 'Lời giới thiệu...', avatar: '' };
-        setMembers([...members, newMember]);
+      const handleAddMember = async () => {
+        try {
+          const newId = Date.now().toString();
+          const ref = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'members', newId);
+          await window.FirebaseSDK.setDoc(ref, {
+            name: 'Thành viên mới',
+            role: 'Vai trò',
+            bio: 'Lời giới thiệu...',
+            avatar: ''
+          });
+        } catch (error) {
+          showCustomAlert("Lỗi thêm thành viên: " + error.message);
+        }
       };
 
-      const handleUpdateMember = (id, field, value) => {
-        setMembers(members.map(m => m.id === id ? { ...m, [field]: value } : m));
+      const handleUpdateMember = async (id, field, value) => {
+        try {
+          const ref = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'members', id);
+          await window.FirebaseSDK.updateDoc(ref, { [field]: value });
+        } catch (error) {
+          console.error("Lỗi cập nhật thành viên:", error);
+        }
       };
 
       const handleDeleteMember = (id) => {
-        showCustomConfirm("Bạn có chắc chắn muốn xóa thành viên này khỏi tổ ấm?", () => {
-          setMembers(members.filter(m => m.id !== id));
+        showCustomConfirm("Bạn có chắc chắn muốn xóa thành viên này khỏi tổ ấm?", async () => {
+          try {
+            const ref = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'members', id);
+            await window.FirebaseSDK.deleteDoc(ref);
+          } catch (error) {
+            showCustomAlert("Lỗi xóa thành viên: " + error.message);
+          }
         });
       };
 
-      // --- CÁC THAO TÁC SỬA ĐỔI ALBUMS ---
-      const handleAddAlbum = () => {
-        const newAlbum = {
-          id: 'album_' + Date.now().toString(),
-          name: 'Quyển Album mới',
-          desc: 'Kể vài câu chuyện nhỏ về album này...',
-          cover: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&auto=format&fit=crop&q=80'
-        };
-        setAlbums([...albums, newAlbum]);
+      const handleAddAlbum = async () => {
+        try {
+          const newId = 'album_' + Date.now().toString();
+          const ref = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'albums', newId);
+          await window.FirebaseSDK.setDoc(ref, {
+            name: 'Quyển Album mới',
+            desc: 'Kể vài câu chuyện nhỏ về album này...',
+            cover: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&auto=format&fit=crop&q=80'
+          });
+        } catch (error) {
+          showCustomAlert("Lỗi tạo album: " + error.message);
+        }
       };
 
-      const handleUpdateAlbum = (id, field, value) => {
-        setAlbums(albums.map(a => a.id === id ? { ...a, [field]: value } : a));
+      const handleUpdateAlbum = async (id, field, value) => {
+        try {
+          const ref = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'albums', id);
+          await window.FirebaseSDK.updateDoc(ref, { [field]: value });
+        } catch (error) {
+          console.error("Lỗi cập nhật album:", error);
+        }
       };
 
       const handleDeleteAlbum = (id) => {
-        showCustomConfirm('Bạn có chắc chắn muốn xóa album này? Tất cả ảnh thuộc album này sẽ được chuyển về album chung mặc định.', () => {
-          setAlbums(albums.filter(a => a.id !== id));
-          setPhotos(photos.map(p => p.albumId === id ? { ...p, albumId: INITIAL_ALBUMS[0]?.id || 'thuongnhat' } : p));
-          if (activeAlbumId === id) setActiveAlbumId(null);
+        showCustomConfirm('Bạn có chắc chắn muốn xóa album này? Tất cả ảnh thuộc album này sẽ được chuyển về album chung mặc định.', async () => {
+          try {
+            const ref = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'albums', id);
+            await window.FirebaseSDK.deleteDoc(ref);
+            
+            const targetAlbumId = albums.find(a => a.id !== id)?.id || 'general';
+            const photosToMigrate = photos.filter(p => p.albumId === id);
+            for (const p of photosToMigrate) {
+              const pRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'photos', p.id);
+              await window.FirebaseSDK.updateDoc(pRef, { albumId: targetAlbumId });
+            }
+            if (activeAlbumId === id) setActiveAlbumId(null);
+          } catch (error) {
+            showCustomAlert("Lỗi xóa album: " + error.message);
+          }
         });
       };
 
-      // --- CÁC THAO TÁC SỬA ĐỔI HÌNH ẢNH THỦ CÔNG ---
-      const handleUpdatePhoto = (id, field, value) => {
-        setPhotos(photos.map(p => p.id === id ? { ...p, [field]: value } : p));
+      const handleUpdatePhoto = async (id, field, value) => {
+        try {
+          const ref = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'photos', id);
+          await window.FirebaseSDK.updateDoc(ref, { [field]: value });
+        } catch (error) {
+          console.error("Lỗi sửa thông tin ảnh:", error);
+        }
       };
 
       const handleDeletePhoto = (id) => {
-        showCustomConfirm("Bạn có chắc muốn xóa ảnh này không?", () => {
-          setPhotos(photos.filter(p => p.id !== id));
+        showCustomConfirm("Bạn có chắc muốn xóa ảnh này không?", async () => {
+          try {
+            const ref = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'photos', id);
+            await window.FirebaseSDK.deleteDoc(ref);
+          } catch (error) {
+            showCustomAlert("Lỗi xóa ảnh: " + error.message);
+          }
         });
       };
 
-      // --- CÁC THAO TÁC SỬA ĐỔI DÒNG THỜI GIAN ---
-      const handleAddTimeline = () => {
-        const newMilestone = { id: Date.now().toString(), year: new Date().getFullYear().toString(), title: 'Mốc thời gian mới', desc: 'Chi tiết câu chuyện hạnh phúc...' };
-        setTimeline([...timeline, newMilestone]);
+      const handleAddTimeline = async () => {
+        try {
+          const newId = Date.now().toString();
+          const ref = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'timeline', newId);
+          await window.FirebaseSDK.setDoc(ref, {
+            year: new Date().getFullYear().toString(),
+            title: 'Mốc thời gian mới',
+            desc: 'Chi tiết câu chuyện hạnh phúc...'
+          });
+        } catch (error) {
+          showCustomAlert("Lỗi thêm mốc thời gian: " + error.message);
+        }
       };
 
-      const handleUpdateTimeline = (id, field, value) => {
-        setTimeline(timeline.map(t => t.id === id ? { ...t, [field]: value } : t));
+      const handleUpdateTimeline = async (id, field, value) => {
+        try {
+          const ref = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'timeline', id);
+          await window.FirebaseSDK.updateDoc(ref, { [field]: value });
+        } catch (error) {
+          console.error("Lỗi sửa dòng thời gian:", error);
+        }
       };
 
       const handleDeleteTimeline = (id) => {
-        showCustomConfirm("Xóa mốc sự kiện này?", () => {
-          setTimeline(timeline.filter(t => t.id !== id));
+        showCustomConfirm("Xóa mốc sự kiện này?", async () => {
+          try {
+            const ref = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'timeline', id);
+            await window.FirebaseSDK.deleteDoc(ref);
+          } catch (error) {
+            showCustomAlert("Lỗi xóa sự kiện: " + error.message);
+          }
         });
       };
 
@@ -756,7 +891,7 @@ const INITIAL_TIMELINE = [
         }
       };
 
-      const handleImportFromPastedHtml = (targetType, existingId, newName) => {
+      const handleImportFromPastedHtml = async (targetType, existingId, newName) => {
         if (!pastedHtmlSource.trim()) return;
         setIsScraping(true);
         try {
@@ -774,25 +909,32 @@ const INITIAL_TIMELINE = [
           if (targetType === 'new') {
             const resolvedName = newName.trim() || `Album mới (${new Date().toLocaleDateString('vi-VN')})`;
             finalAlbumId = 'album_' + Date.now().toString();
-            const newAlbum = { id: finalAlbumId, name: resolvedName, desc: `Bộ sưu tập gồm ${uniqueUrls.length} ảnh từ HTML.`, cover: `${uniqueUrls[0]}=w600` };
-            setAlbums([...albums, newAlbum]);
+            const aRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'albums', finalAlbumId);
+            await window.FirebaseSDK.setDoc(aRef, {
+              name: resolvedName,
+              desc: `Bộ sưu tập gồm ${uniqueUrls.length} ảnh từ HTML.`,
+              cover: `${uniqueUrls[0]}=w600`
+            });
           }
 
           const todayString = new Date().toISOString().split('T')[0];
-          const newPhotos = uniqueUrls.map((rawUrl, i) => ({
-            id: `htmlsource_${Date.now()}_${i}`,
-            url: `${rawUrl}=w1000`,
-            caption: `Kỷ niệm #${i + 1}`,
-            date: todayString,
-            albumId: finalAlbumId
-          }));
+          for (let i = 0; i < uniqueUrls.length; i++) {
+            const rawUrl = uniqueUrls[i];
+            const photoId = `htmlsource_${Date.now()}_${i}`;
+            const pRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'photos', photoId);
+            await window.FirebaseSDK.setDoc(pRef, {
+              url: `${rawUrl}=w1000`,
+              caption: `Kỷ niệm #${i + 1}`,
+              date: todayString,
+              albumId: finalAlbumId
+            });
+          }
 
-          setPhotos([...newPhotos, ...photos]);
-          setScrapeSuccess(`🎉 Nạp thành công ${newPhotos.length} bức ảnh vào hệ thống!`);
+          setScrapeSuccess(`🎉 Nạp thành công ${uniqueUrls.length} bức ảnh lên Đám mây!`);
           setPastedHtmlSource('');
           setActiveAlbumId(finalAlbumId);
           setShowSettings(false);
-          showCustomAlert(`Nạp thành công ${newPhotos.length} bức ảnh.`);
+          showCustomAlert(`Nạp thành công ${uniqueUrls.length} bức ảnh lên đám mây.`);
         } catch (err) {
           setScrapeError(err.message);
           showCustomAlert("Lỗi: " + err.message);
@@ -823,25 +965,32 @@ const INITIAL_TIMELINE = [
           if (targetType === 'new') {
             const resolvedName = newName.trim() || `Album mới (${new Date().toLocaleDateString('vi-VN')})`;
             finalAlbumId = 'album_' + Date.now().toString();
-            const newAlbum = { id: finalAlbumId, name: resolvedName, desc: `Album tự động quét chứa ${uniqueUrls.length} ảnh.`, cover: `${uniqueUrls[0]}=w600` };
-            setAlbums([...albums, newAlbum]);
+            const aRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'albums', finalAlbumId);
+            await window.FirebaseSDK.setDoc(aRef, {
+              name: resolvedName,
+              desc: `Album tự động quét chứa ${uniqueUrls.length} ảnh.`,
+              cover: `${uniqueUrls[0]}=w600`
+            });
           }
 
           const todayString = new Date().toISOString().split('T')[0];
-          const newPhotos = uniqueUrls.map((rawUrl, i) => ({
-            id: `gphotos_${Date.now()}_${i}`,
-            url: `${rawUrl}=w1000`,
-            caption: `Kỷ niệm quét tự động #${i + 1}`,
-            date: todayString,
-            albumId: finalAlbumId
-          }));
+          for (let i = 0; i < uniqueUrls.length; i++) {
+            const rawUrl = uniqueUrls[i];
+            const photoId = `gphotos_${Date.now()}_${i}`;
+            const pRef = window.FirebaseSDK.doc(db, 'artifacts', appId, 'public', 'data', 'photos', photoId);
+            await window.FirebaseSDK.setDoc(pRef, {
+              url: `${rawUrl}=w1000`,
+              caption: `Kỷ niệm quét tự động #${i + 1}`,
+              date: todayString,
+              albumId: finalAlbumId
+            });
+          }
 
-          setPhotos([...newPhotos, ...photos]);
-          setScrapeSuccess(`🎉 Quét thành công và đồng bộ ${newPhotos.length} ảnh vào album!`);
+          setScrapeSuccess(`🎉 Quét thành công và đồng bộ ${uniqueUrls.length} ảnh lên Đám mây!`);
           setInputAlbumUrl('');
           setActiveAlbumId(finalAlbumId);
           setShowSettings(false);
-          showCustomAlert(`Quét thành công ${newPhotos.length} ảnh.`);
+          showCustomAlert(`Quét thành công ${uniqueUrls.length} ảnh.`);
         } catch (err) {
           setScrapeError(err.message);
           showCustomAlert("Lỗi quét: " + err.message);
@@ -874,12 +1023,25 @@ const INITIAL_TIMELINE = [
         );
       };
 
+      if (isLoading) {
+        return (
+          <div className="min-h-screen bg-[#faf6f0] flex flex-col items-center justify-center p-6 text-center">
+            <div className="bg-white/60 backdrop-blur-md p-10 rounded-3xl border border-amber-100 shadow-xl max-w-sm w-full flex flex-col items-center space-y-6">
+              <div className="w-16 h-16 rounded-full border-4 border-amber-500/25 border-t-amber-800 animate-spin"></div>
+              <div>
+                <h3 className="text-xl font-serif font-bold text-amber-900 mb-1">Tổ Ấm Yêu Thương</h3>
+                <p className="text-sm text-slate-500">Đang đồng bộ dữ liệu đám mây thời gian thực...</p>
+              </div>
+            </div>
+          </div>
+        );
+      }
+
       return (
         <div className="min-h-screen text-slate-800 font-sans bg-[#faf6f0]">
           <audio ref={audioRef} src={musicUrl} />
 
           {}
-          {/* --- HEADER --- */}
           <header className="sticky top-0 z-40 bg-white/80 backdrop-blur-md border-b border-orange-100 transition-all duration-300 shadow-xs">
             <div className="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
               <div className="flex items-center space-x-2">
@@ -912,7 +1074,7 @@ const INITIAL_TIMELINE = [
             </div>
           </header>
 
-          {/* --- HERO BANNER --- */}
+          {}
           <section className="relative overflow-hidden py-16 lg:py-24 bg-gradient-to-b from-orange-100/50 to-orange-50/20">
             <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
               <span className="inline-flex items-center space-x-1.5 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-bounce">
@@ -935,7 +1097,6 @@ const INITIAL_TIMELINE = [
           </section>
 
           {}
-          {/* --- THÀNH VIÊN --- */}
           <section className="py-16 max-w-6xl mx-auto px-4">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-serif font-bold text-amber-950">Thành Viên Tổ Ấm</h2>
@@ -954,7 +1115,6 @@ const INITIAL_TIMELINE = [
           </section>
 
           {}
-          {/* --- ALBUM & PHOTO GRID --- */}
           <section className="py-16 bg-white/60">
             <div className="max-w-6xl mx-auto px-4">
               <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 border-b border-orange-100 pb-6">
@@ -1021,7 +1181,6 @@ const INITIAL_TIMELINE = [
           </section>
 
           {}
-          {/* --- TIMELINE --- */}
           <section className="py-20 max-w-4xl mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-serif font-bold text-amber-950">Hành Trình Hạnh Phúc</h2>
@@ -1043,7 +1202,7 @@ const INITIAL_TIMELINE = [
             </div>
           </section>
 
-          {/* --- FOOTER --- */}
+          {}
           <footer className="bg-amber-950 text-amber-100 py-12 text-center border-t border-amber-900">
             <p>© 2026 {albumTitle}. {footerText}</p>
           </footer>
@@ -1056,7 +1215,7 @@ const INITIAL_TIMELINE = [
               onTouchEnd={handleTouchEnd}
             >
               <button onClick={() => { setActivePhotoIndex(null); setIsSlideshowActive(false); }} className="absolute top-4 right-4 text-white bg-white/10 p-2.5 rounded-full z-50 hover:bg-white/20">✕</button>
-              <button onClick={() => setIsSlideshowActive(!isSlideshowActive)} className={`absolute top-4 left-4 px-4 py-2 rounded-full text-xs font-bold text-white z-50 transition-all ${isSlideshowActive ? 'bg-rose-600 animate-pulse' : 'bg-white/10 hover:bg-white/20'}`}>{isSlideshowActive ? '⏸ Tạm dừng trình chiếu' : '▶ Trình chiếu tự động'}</button>
+              <button onClick={() => setIsSlideshowActive(!isSlideshowActive)} className={`absolute top-4 left-4 px-4 py-2 rounded-full text-xs font-bold text-white z-50 transition-all ${isSlideshowActive ? 'bg-rose-600 animate-pulse' : 'bg-white/10'}`}>{isSlideshowActive ? '⏸ Tạm dừng trình chiếu' : '▶ Trình chiếu tự động'}</button>
               <div className="relative max-w-4xl w-full flex items-center justify-center">
                 <button onClick={(e) => { e.stopPropagation(); prevPhoto(); }} className="absolute left-2 text-white bg-white/10 p-3 rounded-full hover:bg-white/20 z-50">◀</button>
                 <div className="flex flex-col items-center">
@@ -1087,7 +1246,6 @@ const INITIAL_TIMELINE = [
           )}
 
           {}
-          {/* --- CÀI ĐẶT DRAWER PANEL --- */}
           {showSettings && (
             <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs">
               <div className="absolute inset-0" onClick={() => setShowSettings(false)}></div>
@@ -1250,7 +1408,7 @@ const INITIAL_TIMELINE = [
                           <span>💾</span><span>Sao lưu & Khôi phục dữ liệu vĩnh viễn</span>
                         </h4>
                         <p className="text-xs text-slate-600 leading-relaxed">
-                          Tải về file sao lưu .json chứa toàn bộ hình ảnh, album sự kiện và cấu hình đếm ngày kỷ niệm của gia đình. Khi thay đổi máy chủ hoặc triển khai mới, bạn chỉ cần nạp lại file này là khôi phục toàn vẹn 100%.
+                          Tải về tệp dự phòng cấu trúc dữ liệu JSON lên thiết bị máy tính của bạn. Dễ dàng nạp lại bất cứ lúc nào để phục hồi nguyên vẹn 100% hình ảnh trên Đám mây.
                         </p>
                         <div className="grid grid-cols-2 gap-3 pt-1">
                           <button
@@ -1299,7 +1457,6 @@ const INITIAL_TIMELINE = [
             </div>
           )}
 
-          {}
           {/* --- CÁC DIALOG LỰA CHỌN PHỤ --- */}
           {activeAvatarSelectorMemberId && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4">
@@ -1342,7 +1499,7 @@ const INITIAL_TIMELINE = [
 
           {/* --- HỘP THOẠI THÔNG BÁO NỘI BỘ (CUSTOM ALERT MODAL) --- */}
           {customAlert.show && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
               <div className="bg-white rounded-2xl max-w-xs w-full p-6 text-center shadow-2xl space-y-4 border border-amber-100">
                 <div className="w-12 h-12 bg-amber-100 text-amber-800 rounded-full flex items-center justify-center mx-auto text-xl">✨</div>
                 <p className="text-sm font-semibold text-slate-800 leading-relaxed">{customAlert.message}</p>
@@ -1358,7 +1515,7 @@ const INITIAL_TIMELINE = [
 
           {/* --- HỘP THOẠI XÁC NHẬN NỘI BỘ (CUSTOM CONFIRM MODAL) --- */}
           {customConfirm.show && (
-            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4">
+            <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
               <div className="bg-white rounded-2xl max-w-xs w-full p-6 text-center shadow-2xl space-y-4 border border-amber-100">
                 <div className="w-12 h-12 bg-rose-100 text-rose-800 rounded-full flex items-center justify-center mx-auto text-xl">❓</div>
                 <p className="text-sm font-semibold text-slate-800 leading-relaxed">{customConfirm.message}</p>
