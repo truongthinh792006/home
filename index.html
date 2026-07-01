@@ -77,43 +77,143 @@
     // ⚠️ PHẦN KHỞI TẠO DỮ LIỆU GỐC (DÀNH CHO KHÁCH TRUY CẬP LẦN ĐẦU)
     // =========================================================================
     const INITIAL_SETTINGS = {
-      "albumTitle": "Tổ Ấm Yêu Thương",
-      "albumSubtitle": "Nơi bão dừng sau cánh cửa - Kỷ niệm gia đình chúng mình",
-      "musicUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-      "anniversaryDate": "1998-05-20",
-      "adminPin": "1234",
-      "footerText": "Gửi trọn vẹn yêu thương và trân quý cuộc đời."
-    };
+  "albumTitle": "Tổ Ấm Yêu Thương",
+  "albumSubtitle": "Nơi bão dừng sau cánh cửa - Kỷ niệm gia đình chúng mình",
+  "musicUrl": "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+  "anniversaryDate": "2005-08-15",
+  "adminPin": "1234",
+  "footerText": "\"Gia đình là nơi cuộc sống bắt đầu và tình yêu không bao giờ kết thúc.\""
+};
 
-    const INITIAL_MEMBERS = [
-      { id: '1', name: 'Ba Thịnh', role: 'Trụ cột vững chãi', bio: 'Thích uống Cafe, và cực kỳ chiều chuộng cả nhà.', avatar: 'https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80' },
-      { id: '2', name: 'Mẹ Nhi', role: 'Bếp trưởng ấm áp', bio: 'Bàn tay vàng trong làng nấu nướng, giữ ngọn lửa yêu thương cho tổ ấm.', avatar: 'https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=150&auto=format&fit=crop&q=80' },
-      { id: '3', name: 'Anh Hai Bin', role: 'Lập trình viên tương lai', bio: 'Thích âm nhạc, lập trình viên tương lai năng động.', avatar: 'https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=150&auto=format&fit=crop&q=80' },
-      { id: '4', name: 'Em Bo', role: 'Vitamin vui vẻ', bio: 'Yêu ca hát, nguồn năng lượng tích cực và là cục cưng của cả nhà.', avatar: 'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=150&auto=format&fit=crop&q=80' }
-    ];
+const INITIAL_MEMBERS = [
+  {
+    "id": "1",
+    "name": "Ba Thịnh",
+    "role": "Trụ cột vững chãi",
+    "bio": "Thích uống Cafe, và cực kỳ chiều chuộng cả nhà.",
+    "avatar": "https://lh3.googleusercontent.com/pw/AP1GczNGa_WpmfJiA6PiUz7Qi27W7oxjOiek3lp4L1BqJBQOICM3X1jTHkCTHbm_QI1-RuS22P4vtIjYeiWtT8EJeLrKpNmeMrrtsv1xdLmMlNrMbLWeBjkXf_ePSBxPCRa6MyKLhpbUNib3GoqhSBtcfSAcK9Vn2AKzl8H2t5Trqjo4xi8YT2q3W7zcUOBw41Uyr19ttZtD3OIkY2h4PzPYXYbsdV5tbL5sdtJN0EKBT6-jd8TCozjrnHvxY3lF06a5wIASEL86cJXpK5Zk65uzOnNPJW1JYKWddOPpJXV7JJlaxQ49O415t77xjm7ioJ0bXq7_Ftd7hLf9NjLRZTnCqJh1Rs-J95Po1XG-y4Enq_LjfTM8WJHjQbaAhYu9HZdZo-XLHcTfD2jY2pNO_Uxr3oSg_e9e4NnEd37rS2o2XsYqtE9sE7DcxmBSpPmSkAkFTZyRlxbsn8V1O9TJ_z65zOSfwIgpgYeP-SSFaG7hSk7pQ2ydqBWIAoPTqb0ZdNDknfs7zyMRFFIa9ukuLq5QLwlw9DrFqt99WCO8Zg6_XYMImDUMb5hJYaBawGv0WkT4cbpfhG7YLIZ_ehcEZW0IXY2osffu3nb-7wRqmLeW2cIf3f1o-HqhFPTVjgw08XqqwG53CFnHaSV6GAg3au0Q27NUCfMbCrnrPX1D5R15bUSrxMgTiN4fZiHIoGkhjeZVuj9_DH8FsmfgQ-XcHN5xmbqPvvlOR-btopzJrHyBd5ArEQdvQkjovrPQCpRDQmTBprAT4nSOobzpZtfsqg4y_SMwL98w41Hyhyek4SXWDioiD-8fr-BQEnZP0FQO386Djwsovg3-fGW37ySCRn2stEPqOh_TqgkviD-jdKjUtk7V_A0xQdkCDzN7n36LiKRy4cYYKVqGW3r3jgd2QElYJF-LcRh01z1TuHQwWk7hbx6avpBIU7ALyHfFY0hYHpXBJiJRzwvw2WtBqK-8G1wOq4NPSB6D-BVAKiRhJvWBonQqJlCKKw=w150-h150-c"
+  },
+  {
+    "id": "2",
+    "name": "Mẹ Nhi",
+    "role": "Bếp trưởng ấm áp",
+    "bio": "Bàn tay vàng trong làng nấu nướng, giữ ngọn lửa yêu thương cho tổ ấm.",
+    "avatar": "https://lh3.googleusercontent.com/pw/AP1GczPxm3xbJ5ULwqvCGqmGoOqu3hEPAUPKABbjz7_MG-evziHzTshFEjc7a9NW9dBqamY8a-nufuv6x-muWbHBlhfsvZprpduFpTPYvLW7poq2FXnZ1mE_AU4k3PgLQ01R3DU_y4AF3WMpMf49Vhu7-J5nNQ=w693-h923-s-no-gm?authuser=0"
+  },
+  {
+    "id": "3",
+    "name": "Anh Hai Bin",
+    "role": "Lập trình viên tương lai",
+    "bio": "Thanh niên nghiêm túc, Thích âm nhạc, lập trình viên tương lai năng động.",
+    "avatar": "https://lh3.googleusercontent.com/pw/AP1GczPGkW-stL4Huto-hQjumZ64n2Ag8wVSgpLt4wn8wJPD3TaABIZRtWm3j8RYB0odGLXX7xadUf9vp6yW--baws0GQSkOkbOJK8MaCK0uB9gKbfPzXi4iTS7jTnJJBoFtMn874plVAR9-0sEGW_vbrxnLHht3kndX0q7nwL8DjKk58GrpeBvr3V3hQFutlY1A49w9cDuSkucX39nmBfTztIaQNkOMw9L7FmXMdJ-TgUs26O0HCqFfez9XfdFtnb4mw97vgnOFW0EJWUrQquW-oSkZmGJX29MjXrl2SWcjTDY7ETRZwggSHNnauRim6DFu4soaDwPYLwhjDJsFIDOJgZXOKUqDbFmUijq1Yffi2Ta1UxciDXwiyJLdw8lD_oOA_AB5w6sUTuX65OarF1G9JoEwIY5sGkQxQHI6JQNwc575wphI3tpHrCNKqeSl4DtiTbJ1L1-gm24lcnxwvlOxxcf_5-3DxA9CkmJNrt_1e8tmBbNmNRAIAGXumDuPcTvaScKeYtapQxf4ktwtapvWjBKVgKPrbKFpHrgMy-wts-qcYoMA4j5nG9I7pC0-gsotWVkViARiDYMrgux-6DK0vd6JGr3uGyjRtZ2I_yzE1P3rfDy2uTR6PEP14pOCyyXs8A2kHLKc_kirQagVUsklbHT8JUq_DIRI0lFByJkccp0LrhswWB8rmIWmEIIgRXELoILUDx1C_7QL6rmV4jaO62SFLo3CN-tq01CtOnJcvOm25uV9CqOVo5-V6pfbYMcpsoewBGbyzCcu7L6qFY7MzKb_dHkMevf8jTSaotUCm69gU2N5FCZI0ihlQcpenJO7rB2zFkO8YEX5uJUkK5NDSUO2aL895jb2_DZZ0p0TPkkibm89OXxk8qLy7Ybms9kZfydtOohhOgTgHYHunpOZmz5rsNm-zRxktiyk78USe_I5bhE5gX2qznrSXmCc0vNCOrvbt19yVO_u_ZHAz9W95jMGwbBqyzPJMuCccJIy62WHYWan=w150-h150-c"
+  },
+  {
+    "id": "4",
+    "name": "Em Bo",
+    "role": "Vitamin vui vẻ",
+    "bio": "Yêu ca hát, nguồn năng lượng tích cực và là cục cưng của cả nhà.",
+    "avatar": "https://lh3.googleusercontent.com/pw/AP1GczMLxAiUiGfcokim4dP89103husAf0uIhkZbrxIrhgj2aeyvRlcvSkBXilmTJlLJ22QrZQdbegw0SMjRMfDnS7tnrrCNhuT-ecam5t4E9N8vrYHqadD33XhLt87eVwFKHgeJOct-dUmq604my2BxGWMYLA=w150-h150-c"
+  }
+];
 
-    const INITIAL_ALBUMS = [
-      { id: 'tet', name: 'Tết Sum Vầy', desc: 'Bữa cơm tất niên ấm áp và không khí rộn ràng trang trí hoa đào ngày Tết cổ truyền', cover: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&auto=format&fit=crop&q=80' },
-      { id: 'dulich', name: 'Du Lịch Muôn Nơi', desc: 'Những hành trình cát trắng nắng vàng, leo núi lội suối tràn ngập tiếng cười của cả nhà', cover: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&auto=format&fit=crop&q=80' },
-      { id: 'kyniem', name: 'Kỷ Niệm Đáng Nhớ', desc: 'Ngày kỷ niệm ngày cưới của Ba Mẹ, sinh nhật các con và những mốc thời gian thiêng liêng', cover: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&auto=format&fit=crop&q=80' },
-      { id: 'thuongnhat', name: 'Góc Nhỏ Thường Nhật', desc: 'Những khoảnh khắc bình dị mộc mạc bên mâm cơm ấm cúng hay buổi tối cùng đọc sách', cover: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&auto=format&fit=crop&q=80' }
-    ];
+const INITIAL_ALBUMS = [
+  {
+    "id": "tet",
+    "name": "Tết Sum Vầy",
+    "desc": "Bữa cơm tất niên ấm áp và không khí rộn ràng trang trí hoa đào ngày Tết cổ truyền",
+    "cover": "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=600&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "dulich",
+    "name": "Du Lịch Muôn Nơi",
+    "desc": "Những hành trình cát trắng nắng vàng, leo núi lội suối tràn ngập tiếng cười của cả nhà",
+    "cover": "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "kyniem",
+    "name": "Kỷ Niệm Đáng Nhớ",
+    "desc": "Ngày kỷ niệm ngày cưới của Ba Mẹ, sinh nhật các con và những mốc thời gian thiêng liêng",
+    "cover": "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&auto=format&fit=crop&q=80"
+  },
+  {
+    "id": "thuongnhat",
+    "name": "Góc Nhỏ Thường Nhật",
+    "desc": "Những khoảnh khắc bình dị mộc mạc bên mâm cơm ấm cúng hay buổi tối cùng đọc sách",
+    "cover": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&auto=format&fit=crop&q=80"
+  }
+];
 
-    const INITIAL_PHOTOS = [
-      { id: '1', url: 'https://images.unsplash.com/photo-1511895426328-dc8714191300?w=1000&auto=format&fit=crop&q=80', caption: 'Bữa cơm sum vầy ngày cuối năm ấm áp tình thân', date: '2026-02-15', albumId: 'tet' },
-      { id: '2', url: 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80', caption: 'Chuyến du lịch biển Nha Trang tràn ngập ánh nắng', date: '2025-06-20', albumId: 'dulich' },
-      { id: '3', url: 'https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1000&auto=format&fit=crop&q=80', caption: 'Kỷ niệm ngày cưới hạnh phúc của Bố Mẹ', date: '2025-10-10', albumId: 'kyniem' },
-      { id: '4', url: 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=1000&auto=format&fit=crop&q=80', caption: 'Một buổi chiều cuối tuần bình yên cả nhà cùng ngồi đọc sách', date: '2026-01-05', albumId: 'thuongnhat' },
-      { id: '5', url: 'https://images.unsplash.com/photo-1489710437560-659882b5c822?w=1000&auto=format&fit=crop&q=80', caption: 'Bé Bo đón tuổi mới lung linh sắc màu bong bóng', date: '2025-12-01', albumId: 'kyniem' },
-      { id: '6', url: 'https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=1000&auto=format&fit=crop&q=80', caption: 'Ba mẹ và các con tíu tít trang trí cành đào đón Tết', date: '2026-02-14', albumId: 'tet' }
-    ];
+const INITIAL_PHOTOS = [
+  {
+    "id": "1",
+    "url": "https://images.unsplash.com/photo-1511895426328-dc8714191300?w=1000&auto=format&fit=crop&q=80",
+    "caption": "Bữa cơm sum vầy ngày cuối năm ấm áp tình thân",
+    "date": "2026-02-15",
+    "albumId": "tet"
+  },
+  {
+    "id": "2",
+    "url": "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80",
+    "caption": "Chuyến du lịch biển Nha Trang tràn ngập ánh nắng",
+    "date": "2025-06-20",
+    "albumId": "dulich"
+  },
+  {
+    "id": "3",
+    "url": "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1000&auto=format&fit=crop&q=80",
+    "caption": "Kỷ niệm ngày cưới hạnh phúc của Bố Mẹ",
+    "date": "2025-10-10",
+    "albumId": "kyniem"
+  },
+  {
+    "id": "4",
+    "url": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=1000&auto=format&fit=crop&q=80",
+    "caption": "Một buổi chiều cuối tuần bình yên cả nhà cùng ngồi đọc sách",
+    "date": "2026-01-05",
+    "albumId": "thuongnhat"
+  },
+  {
+    "id": "5",
+    "url": "https://images.unsplash.com/photo-1489710437560-659882b5c822?w=1000&auto=format&fit=crop&q=80",
+    "caption": "Bé Bo đón tuổi mới lung linh sắc màu bong bóng",
+    "date": "2025-12-01",
+    "albumId": "kyniem"
+  },
+  {
+    "id": "6",
+    "url": "https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=1000&auto=format&fit=crop&q=80",
+    "caption": "Ba mẹ và các con tíu tít trang trí cành đào đón Tết",
+    "date": "2026-02-14",
+    "albumId": "tet"
+  }
+];
 
-    const INITIAL_TIMELINE = [
-      { id: '1', year: '1998', title: 'Ngày chung đôi', desc: 'Ba Thịnh và Mẹ Nhi chính thức về chung một nhà dưới sự chúc phúc của gia đình.' },
-      { id: '2', year: '2001', title: 'Chào đời Anh Hai Bin', desc: 'Thành viên nhỏ đầu tiên xuất hiện mang theo bao niềm vui và hoài bão mới.' },
-      { id: '3', year: '2007', title: 'Chào đời Em Bo dễ thương', desc: 'Tổ ấm nhỏ đã đủ nếp đủ tẻ, rộn rã tiếng cười đùa trẻ thơ mỗi ngày.' },
-      { id: '4', year: '2018', title: 'Ngôi nhà mới, khởi đầu mới', desc: 'Cả nhà cùng chuyển về tổ ấm tự tay thiết kế, bắt đầu viết tiếp những chương hạnh phúc.' }
-    ];
+const INITIAL_TIMELINE = [
+  {
+    "id": "1",
+    "year": "2005",
+    "title": "Ngày chung đôi",
+    "desc": "Ba Thịnh và Mẹ Nhi chính thức về chung một nhà dưới sự chúc phúc của gia đình."
+  },
+  {
+    "id": "2",
+    "year": "2006",
+    "title": "Chào đời Anh Hai Bin",
+    "desc": "Thành viên nhỏ đầu tiên xuất hiện mang theo bao niềm vui và hoài bão mới."
+  },
+  {
+    "id": "3",
+    "year": "2014",
+    "title": "Chào đời Em Bo dễ thương",
+    "desc": "Tổ ấm nhỏ đã đủ nếp đủ tẻ, rộn rã tiếng cười đùa trẻ thơ mỗi ngày."
+  },
+  {
+    "id": "4",
+    "year": "2022",
+    "title": "Ngôi nhà mới, khởi đầu mới",
+    "desc": "Cả nhà cùng chuyển về tổ ấm tự tay thiết kế, bắt đầu viết tiếp những chương hạnh phúc."
+  }
+];
 
     // --- ICONS SVG KHAI BÁO TRƯỚC ĐỂ TRÁNH LỖI BIÊN DỊCH ---
     const HeartIcon = ({ className = "w-6 h-6" }) => (
