@@ -2,8 +2,8 @@
 <html lang="vi">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tổ Ấm Yêu Thương - Album Gia Đình</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title id="browser-document-title">Tổ Ấm Yêu Thương - Album Gia Đình</title>
   
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
@@ -62,7 +62,7 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // --- ICONS SVG KHAI BÁO TRƯỚC ĐỂ TRÁNH LỖI BIÊN DỊCH ---
+    // --- STREAMING_CHUNK: Khai báo hệ thống biểu tượng SVG Icons ---
     const HeartIcon = ({ className = "w-6 h-6" }) => (
       <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className={className}>
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -88,13 +88,7 @@
       </svg>
     );
 
-    const PhotoIcon = ({ className = "w-5 h-5" }) => (
-      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className={className}>
-        <path strokeLinecap="round" strokeLinejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-      </svg>
-    );
-
-    // --- BỘ KIỂM TRA ĐỊNH DẠNG LINK ẢNH ---
+    // --- BỘ KIỂM TRA ĐỊNH DẠNG LINK ---
     const isGooglePhotosPageUrl = (url) => {
       if (!url) return false;
       return url.includes('photos.google.com/share') || url.includes('photos.app.goo.gl') || url.includes('photos.google.com/photo');
@@ -123,16 +117,14 @@
       }
     };
 
-    // --- BỘ LỌC CHỈ LẤY FILE ẢNH THẬT SỰ, KHÔNG LẤY AVATAR GOOGLE ACCOUNT CHỐNG NHẦM LẪN ---
+    // --- BỘ LỌC CHỈ LẤY FILE ẢNH THẬT SỰ ---
     const isActualGooglePhoto = (url) => {
       if (!url) return false;
       const lowerUrl = url.toLowerCase();
       const isGoogle = lowerUrl.includes('googleusercontent.com') || lowerUrl.includes('usercontent.google');
-      if (!isGoogle) return true; // Chấp nhận các liên kết Unsplash hoặc nguồn khác
+      if (!isGoogle) return true;
 
-      // Kiểm tra: Liên kết ảnh thật của Google Photos luôn chứa /pw/, /p/, hoặc /lr/
       const hasPhotoPattern = lowerUrl.includes('/pw/') || lowerUrl.includes('/p/') || lowerUrl.includes('/lr/');
-      // Kiểm tra: Avatar người dùng luôn chứa /a/, /a-/, /profile/, /contacts/
       const isAvatar = lowerUrl.includes('/a/') || lowerUrl.includes('/a-/') || lowerUrl.includes('/profile/') || lowerUrl.includes('/contacts/');
 
       return hasPhotoPattern && !isAvatar;
@@ -141,6 +133,8 @@
     // =========================================================================
     // ⚠️ PHẦN KHỞI TẠO DỮ LIỆU GỐC (DÀNH CHO KHÁCH TRUY CẬP LẦN ĐẦU)
     // =========================================================================
+    const CODE_VERSION = "2026-07-01_v5"; // BUMP PHIÊN BẢN ĐỂ ÉP ĐIỆN THOẠI ĐỒNG BỘ 100%
+
     const INITIAL_SETTINGS = {
       "albumTitle": "Tổ Ấm Yêu Thương",
       "albumSubtitle": "Nơi bão dừng sau cánh cửa - Kỷ niệm gia đình chúng mình",
@@ -202,7 +196,7 @@
       {
         "id": "thuongnhat",
         "name": "Góc Nhỏ Thường Nhật",
-        "desc": "Những khoảnh thước bình dị mộc mạc bên mâm cơm ấm cúng hay buổi tối cùng đọc sách",
+        "desc": "Những khoảnh khắc bình dị mộc mạc bên mâm cơm ấm cúng hay buổi tối cùng đọc sách",
         "cover": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&auto=format&fit=crop&q=80"
       }
     ];
@@ -280,6 +274,26 @@
     ];
 
     function App() {
+      // --- STREAMING_CHUNK: Thiết lập hệ thống tự đồng bộ mã nguồn mới khi Deploy GitHub ---
+      useEffect(() => {
+        const savedVersion = localStorage.getItem('family_code_version');
+        if (savedVersion !== CODE_VERSION) {
+          // Phát hiện phiên bản mã nguồn mới! Tự động dọn rác LocalStorage cũ trên điện thoại để nạp ảnh thật của bạn
+          localStorage.removeItem('family_albumTitle');
+          localStorage.removeItem('family_albumSubtitle');
+          localStorage.removeItem('family_musicUrl');
+          localStorage.removeItem('family_anniversaryDate');
+          localStorage.removeItem('family_adminPin');
+          localStorage.removeItem('family_albums');
+          localStorage.removeItem('family_members');
+          localStorage.removeItem('family_photos');
+          localStorage.removeItem('family_timeline');
+          
+          localStorage.setItem('family_code_version', CODE_VERSION);
+          window.location.reload();
+        }
+      }, []);
+
       // --- STATE QUẢN LÝ DỮ LIỆU ---
       const [albumTitle, setAlbumTitle] = useState(() => localStorage.getItem('family_albumTitle') || INITIAL_SETTINGS.albumTitle);
       const [albumSubtitle, setAlbumSubtitle] = useState(() => localStorage.getItem('family_albumSubtitle') || INITIAL_SETTINGS.albumSubtitle);
@@ -370,88 +384,7 @@
         setTimeout(() => setNotification(null), 4000);
       };
 
-      // --- ĐỒNG BỘ LOCAL STORAGE ---
-      useEffect(() => {
-        localStorage.setItem('family_albumTitle', albumTitle);
-        localStorage.setItem('family_albumSubtitle', albumSubtitle);
-        localStorage.setItem('family_musicUrl', musicUrl);
-        localStorage.setItem('family_anniversaryDate', anniversaryDate);
-        localStorage.setItem('family_adminPin', adminPin);
-      }, [albumTitle, albumSubtitle, musicUrl, anniversaryDate, adminPin]);
-
-      useEffect(() => {
-        localStorage.setItem('family_albums', JSON.stringify(albums));
-      }, [albums]);
-
-      useEffect(() => {
-        localStorage.setItem('family_members', JSON.stringify(members));
-      }, [members]);
-
-      useEffect(() => {
-        localStorage.setItem('family_photos', JSON.stringify(photos));
-      }, [photos]);
-
-      useEffect(() => {
-        localStorage.setItem('family_timeline', JSON.stringify(timeline));
-      }, [timeline]);
-
-      // Đồng bộ hóa các giá trị tạm thời khi bảng điều khiển mở ra
-      useEffect(() => {
-        if (showSettings) {
-          setTempAlbumTitle(albumTitle);
-          setTempAlbumSubtitle(albumSubtitle);
-          setTempAnniversaryDate(anniversaryDate);
-          setTempAdminPin(adminPin);
-          setTempMusicUrl(musicUrl);
-        }
-      }, [showSettings]);
-
-      // Tính số ngày bên nhau dựa trên ngày kỷ niệm
-      useEffect(() => {
-        const calculateDays = () => {
-          const start = new Date(anniversaryDate);
-          const today = new Date();
-          const diffTime = Math.abs(today - start);
-          const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-          setDaysTogether(diffDays);
-        };
-        calculateDays();
-        const interval = setInterval(calculateDays, 1000 * 60 * 60); 
-        return () => clearInterval(interval);
-      }, [anniversaryDate]);
-
-      // Quản lý trình phát nhạc nền
-      useEffect(() => {
-        if (audioRef.current) {
-          audioRef.current.loop = true;
-          if (isPlaying) {
-            audioRef.current.play().catch(err => {
-              setIsPlaying(false);
-            });
-          } else {
-            audioRef.current.pause();
-          }
-        }
-      }, [isPlaying, musicUrl]);
-
-      // --- TRÌNH CHIẾU TỰ ĐỘNG TRONG LIGHTBOX ---
-      useEffect(() => {
-        let intervalId;
-        if (isSlideshowActive && activePhotoIndex !== null) {
-          intervalId = setInterval(() => {
-            nextPhoto();
-          }, 3000); 
-        }
-        return () => {
-          if (intervalId) clearInterval(intervalId);
-        };
-      }, [isSlideshowActive, activePhotoIndex]);
-
-      const togglePlay = () => {
-        setIsPlaying(!isPlaying);
-      };
-
-      // Đóng và lưu cấu hình chung
+      // --- STREAMING_CHUNK: Quản trị các thao tác lưu trữ, reset và khôi phục dữ liệu ---
       const handleSaveAllAndClose = () => {
         setAlbumTitle(tempTitle);
         setAlbumSubtitle(tempSubtitle);
@@ -462,31 +395,6 @@
         showToast("Đã lưu giữ toàn bộ các cấu hình thiết lập của bạn!");
       };
 
-      // Xác thực mở bảng cài đặt bằng mã PIN
-      const handleSettingsClick = () => {
-        if (isAdminAuthenticated) {
-          setShowSettings(true);
-        } else {
-          setPinInput('');
-          setPinError('');
-          setShowPinModal(true);
-        }
-      };
-
-      // Hàm đối chiếu mã PIN
-      const handleVerifyPin = (e) => {
-        e.preventDefault();
-        if (pinInput === adminPin) {
-          setIsAdminAuthenticated(true);
-          setShowPinModal(false);
-          setShowSettings(true);
-          setPinError('');
-        } else {
-          setPinError('Mã PIN không chính xác. Vui lòng thử lại!');
-        }
-      };
-
-      // Đặt lại toàn bộ dữ liệu về mẫu gốc ban đầu
       const handleResetData = () => {
         setConfirmDialog({
           text: "Bạn có chắc chắn muốn xóa toàn bộ các cài đặt tùy biến và khôi phục giao diện mẫu ban đầu không?",
@@ -580,8 +488,10 @@
           adminPin
         };
         return `    // =========================================================================
-    // ⚠️ PHẦN KHỞI TẠO DỮ LIỆU GỐC (DÀNH CHO KHÁCH TRUY CẬP LẦN ĐẦU)
+    // ⚠️ PHẦN KHỔI TẠO DỮ LIỆU GỐC (DÀNH CHO KHÁCH TRUY CẬP LẦN ĐẦU)
     // =========================================================================
+    const CODE_VERSION = "${CODE_VERSION}";
+
     const INITIAL_SETTINGS = ${JSON.stringify(currentSettings, null, 6)};
 
     const INITIAL_MEMBERS = ${JSON.stringify(members, null, 6)};
@@ -646,6 +556,7 @@
         showToast("Đã tạo mới 1 quyển Album sự kiện trống.");
       };
 
+      // --- STREAMING_CHUNK: Quản lý các cấu hình hình ảnh và trích xuất Google Photos ---
       const handleUpdateAlbum = (id, field, value) => {
         setAlbums(albums.map(a => a.id === id ? { ...a, [field]: value } : a));
       };
@@ -662,7 +573,6 @@
         });
       };
 
-      // --- CÁC THAO TÁC SỬA ĐỔI HÌNH ẢNH THỦ CÔNG ---
       const handleAddPhoto = (targetAlbumId) => {
         const newPhoto = {
           id: Date.now().toString(),
@@ -684,7 +594,6 @@
         showToast("Đã gỡ ảnh khỏi album thành công.");
       };
 
-      // --- CÁC THAO TÁC SỬA ĐỔI DÒNG THỜI GIAN ---
       const handleAddTimeline = () => {
         const newMilestone = {
           id: Date.now().toString(),
@@ -705,7 +614,6 @@
         showToast("Đã xóa mốc thời gian kỷ niệm.");
       };
 
-      // --- CHỌN ẢNH ĐẠI DIỆN / BÌA ALBUM TỪ ALBUM CỦA CHÍNH MÌNH ---
       const handleSelectAvatarFromAlbum = (photoUrl) => {
         if (activeAvatarSelectorMemberId) {
           let avatarUrl = photoUrl;
@@ -732,7 +640,6 @@
         }
       };
 
-      // --- TRÍCH XUẤT ẢNH ĐƠN LẺ TỪ MÃ NGUỒN HTML DÁN TRỰC TIẾP ---
       const handleExtractSingleFromHtml = () => {
         if (!singleHtmlInput.trim() || !htmlExtractorTarget) return;
         try {
@@ -773,7 +680,6 @@
         }
       };
 
-      // --- BỘ TRÍCH XUẤT ẢNH TỪ TRANG CHIA SẺ GOOGLE PHOTOS CÔNG KHAI (DÙNG CHUNG) ---
       const handleExtractImageFromGPhotos = async (url, onSuccess, onError) => {
         if (!url || !url.trim()) return;
         
@@ -838,7 +744,6 @@
         }
       };
 
-      // --- TRÍCH XUẤT ẢNH ĐẠI DIỆN CHO THÀNH VIÊN ---
       const handleExtractAvatarFromLink = (memberId, url) => {
         setIsExtractingAvatar(memberId);
         handleExtractImageFromGPhotos(url,
@@ -854,7 +759,6 @@
         );
       };
 
-      // --- TRÍCH XUẤT LIÊN KẾT ẢNH TRỰC TIẾP CHO ẢNH ĐƠN LẺ TRONG THƯ VIỆN ---
       const handleExtractPhotoFromLink = (photoId, url) => {
         setIsExtractingPhotoId(photoId);
         handleExtractImageFromGPhotos(url,
@@ -870,7 +774,6 @@
         );
       };
 
-      // --- PHƯƠNG ÁN DỰ PHÒNG HOÀN HẢO KHÔNG LỖI CORS: QUÉT MÃ NGUỒN HTML CỦA ALBUM (100% THÀNH CÔNG) ---
       const handleImportFromPastedHtml = (targetType, existingId, newName) => {
         if (!pastedHtmlSource.trim()) return;
         setIsScraping(true);
@@ -944,7 +847,6 @@
         }
       };
 
-      // --- ĐỒNG BỘ GOOGLE PHOTOS QUA LINK CHIA SẺ ---
       const handleImportAlbum = async (url, targetType, existingId, newName) => {
         if (!url.trim()) return;
         setIsScraping(true);
@@ -1071,33 +973,7 @@
         }
       };
 
-      // --- KHỞI TẠO AVATAR THÀNH VIÊN VỚI GRADIENT TỰ ĐỘNG CHỐNG HỎNG ANH ---
-      const renderAvatar = (member, sizeClasses = "w-24 h-24 text-2xl") => {
-        const initials = member.name ? member.name.trim().split(' ').pop()[0].toUpperCase() : '?';
-        const hasAvatar = member.avatar && member.avatar.trim() !== '';
-
-        return (
-          <div className={`relative ${sizeClasses} rounded-full overflow-hidden ring-4 ring-amber-100 group-hover:ring-rose-200 transition-all duration-300 flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-100 to-rose-100 shadow-inner`}>
-            {hasAvatar ? (
-              <img 
-                src={member.avatar} 
-                alt={member.name}
-                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-                onError={(e) => {
-                  e.target.style.display = 'none';
-                  const fallback = e.target.parentNode.querySelector('.avatar-text-fallback');
-                  if (fallback) fallback.classList.remove('hidden');
-                }}
-              />
-            ) : null}
-            <div className={`avatar-text-fallback ${hasAvatar ? 'hidden' : ''} w-full h-full flex items-center justify-center text-amber-950 font-extrabold font-serif tracking-wider`}>
-              {initials}
-            </div>
-          </div>
-        );
-      };
-
-      // --- LỌC VÀ CHUYỂN SLIDE HÌNH ẢNH ---
+      // --- STREAMING_CHUNK: Trình bày layout giao diện người dùng ---
       const activeAlbum = albums.find(a => a.id === activeAlbumId);
 
       const filteredPhotos = viewMode === 'all' 
@@ -1162,7 +1038,7 @@
                 <span>Kỷ Niệm Của Chúng Mình</span>
               </span>
 
-              <h1 className="text-4xl md:text-6xl font-serif font-black text-amber-900 tracking-tight leading-tight mb-4">
+              <h1 className="text-4xl md:text-6xl font-serif font-black text-amber-900 tracking-tight leading-tight mb-4 animate-fade-in">
                 {albumTitle}
               </h1>
               <p className="text-base md:text-lg text-amber-800/80 max-w-xl mx-auto mb-10 italic">
@@ -1492,7 +1368,7 @@
             </div>
           </footer>
 
-          {/* --- LIGHTBOX (XEM ẢNH PHÓNG TO & AUTO SLIDESHOW) --- */}
+          {/* --- LIGHTBOX --- */}
           {activePhotoIndex !== null && filteredPhotos[activePhotoIndex] && (
             <div className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-4 animate-fade-in font-sans">
               
@@ -2564,7 +2440,7 @@
               <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-rose-100 flex flex-col space-y-4">
                 
                 <div className="flex items-center space-x-2 text-rose-900 border-b border-slate-100 pb-3">
-                  <span className="text-xl font-bold">📋</span>
+                  <span className="text-xl">📋</span>
                   <h3 className="text-lg font-bold font-serif">Trích xuất ảnh đơn từ mã HTML</h3>
                 </div>
 
