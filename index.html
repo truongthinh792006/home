@@ -11,7 +11,7 @@
   <!-- Google Fonts hỗ trợ tiếng Việt hoàn chỉnh -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Lora:ital,wght@0,400..700;1,400..700&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400..900;1,400..900&family=Quicksand:wght@300..700&display=swap" rel="stylesheet">
 
   <!-- React 18 & ReactDOM 18 CDN -->
   <script src="https://unpkg.com/react@18/umd/react.production.min.js" crossorigin></script>
@@ -20,11 +20,10 @@
   <!-- Babel để biên dịch JSX trực tiếp trên trình duyệt -->
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
 
-  <!-- CSS Styling tùy biến cao cấp -->
   <style>
     /* Ép phông chữ hiển thị chuẩn, mượt mà và không bị lỗi dấu tiếng Việt */
     .font-serif {
-      font-family: 'Lora', Georgia, Times, serif !important;
+      font-family: 'Playfair Display', Georgia, Times, serif !important;
     }
     .font-sans, body {
       font-family: 'Quicksand', system-ui, -apple-system, sans-serif !important;
@@ -63,7 +62,7 @@
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
 
-    // --- STREAMING_CHUNK: Khai báo hệ thống icon SVG chất lượng cao ---
+    // --- ICONS SVG KHAI BÁO TRƯỚC ĐỂ TRÁNH LỖI BIÊN DỊCH ---
     const HeartIcon = ({ className = "w-6 h-6" }) => (
       <svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 24 24" className={className}>
         <path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
@@ -95,7 +94,7 @@
       </svg>
     );
 
-    // --- STREAMING_CHUNK: Khai báo bộ phân tích liên kết ảnh thông minh ---
+    // --- BỘ KIỂM TRA ĐỊNH DẠNG LINK ẢNH ---
     const isGooglePhotosPageUrl = (url) => {
       if (!url) return false;
       return url.includes('photos.google.com/share') || url.includes('photos.app.goo.gl') || url.includes('photos.google.com/photo');
@@ -106,18 +105,7 @@
       return url.includes('fife.usercontent.google.com');
     };
 
-    const isActualGooglePhoto = (url) => {
-      if (!url) return false;
-      const lowerUrl = url.toLowerCase();
-      const isGoogle = lowerUrl.includes('googleusercontent.com') || lowerUrl.includes('usercontent.google');
-      if (!isGoogle) return true; 
-
-      const hasPhotoPattern = lowerUrl.includes('/pw/') || lowerUrl.includes('/p/') || lowerUrl.includes('/lr/');
-      const isAvatar = lowerUrl.includes('/a/') || lowerUrl.includes('/a-/') || lowerUrl.includes('/profile/') || lowerUrl.includes('/contacts/');
-
-      return hasPhotoPattern && !isAvatar;
-    };
-
+    // --- BỘ GIẢI MÃ CHUỖI MÃ HÓA GOOGLE PHOTOS CHUYÊN SÂU ---
     const decodeGooglePhotosHtml = (html) => {
       if (!html) return '';
       try {
@@ -135,30 +123,19 @@
       }
     };
 
-    // --- STREAMING_CHUNK: Hàm Render ảnh đại diện thông minh chống lỗi crash hệ thống ---
-    const renderAvatar = (member, sizeClasses = "w-24 h-24 text-2xl") => {
-      const initials = member.name ? member.name.trim().split(' ').pop()[0].toUpperCase() : '?';
-      const hasAvatar = member.avatar && member.avatar.trim() !== '';
+    // --- BỘ LỌC CHỈ LẤY FILE ẢNH THẬT SỰ, KHÔNG LẤY AVATAR GOOGLE ACCOUNT CHỐNG NHẦM LẪN ---
+    const isActualGooglePhoto = (url) => {
+      if (!url) return false;
+      const lowerUrl = url.toLowerCase();
+      const isGoogle = lowerUrl.includes('googleusercontent.com') || lowerUrl.includes('usercontent.google');
+      if (!isGoogle) return true; // Chấp nhận các liên kết Unsplash hoặc nguồn khác
 
-      return (
-        <div className={`relative ${sizeClasses} rounded-full overflow-hidden ring-4 ring-amber-100 group-hover:ring-rose-200 transition-all duration-300 flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-100 to-rose-100 shadow-inner`}>
-          {hasAvatar ? (
-            <img 
-              src={member.avatar} 
-              alt={member.name}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
-              onError={(e) => {
-                e.target.style.display = 'none';
-                const fallback = e.target.parentNode.querySelector('.avatar-text-fallback');
-                if (fallback) fallback.classList.remove('hidden');
-              }}
-            />
-          ) : null}
-          <div className={`avatar-text-fallback ${hasAvatar ? 'hidden absolute inset-0' : ''} w-full h-full flex items-center justify-center text-amber-950 font-extrabold font-serif tracking-wider bg-gradient-to-br from-amber-200 via-orange-200 to-rose-200`}>
-            {initials}
-          </div>
-        </div>
-      );
+      // Kiểm tra: Liên kết ảnh thật của Google Photos luôn chứa /pw/, /p/, hoặc /lr/
+      const hasPhotoPattern = lowerUrl.includes('/pw/') || lowerUrl.includes('/p/') || lowerUrl.includes('/lr/');
+      // Kiểm tra: Avatar người dùng luôn chứa /a/, /a-/, /profile/, /contacts/
+      const isAvatar = lowerUrl.includes('/a/') || lowerUrl.includes('/a-/') || lowerUrl.includes('/profile/') || lowerUrl.includes('/contacts/');
+
+      return hasPhotoPattern && !isAvatar;
     };
 
     // =========================================================================
@@ -185,7 +162,7 @@
         "name": "Mẹ Nhi",
         "role": "Bếp trưởng ấm áp",
         "bio": "Bàn tay vàng trong làng nấu nướng, giữ ngọn lửa yêu thương cho tổ ấm.",
-        "avatar": "https://lh3.googleusercontent.com/pw/AP1GczOJLiRGSJ3C1sW9RkRXusvvaU-MaEXQx8nSqBIfam6hkDsq-yDuONXfDCs6xz6v_3UgQgYkxgbr48oBsVUHPH4KtPpYqSmcmlwYSo62J38EJEU-a1c0NWcoCeRRiDkza16fh18srutZ4phWSrJkyM_j-g=w693-h923-s-no-gm?authuser=0"
+        "avatar": "https://lh3.googleusercontent.com/pw/AP1GczOJLiRGSJ3C1sW9RkRXusvvaU-MaEXQx8nSqBIfam6hkDsq-yDuONXfDCs6xz6v_3JuQgYkxgbr48oBsVUHPH4KtPpYqSmcmlwYSo62J38EJEU-a1c0NWcoCeRRiDkza16fh18srutZ4phWSrJkyM_j-g=w693-h923-s-no-gm?authuser=0"
       },
       {
         "id": "3",
@@ -225,7 +202,7 @@
       {
         "id": "thuongnhat",
         "name": "Góc Nhỏ Thường Nhật",
-        "desc": "Những khoảnh khắc bình dị mộc mạc bên mâm cơm ấm cúng hay buổi tối cùng đọc sách",
+        "desc": "Những khoảnh thước bình dị mộc mạc bên mâm cơm ấm cúng hay buổi tối cùng đọc sách",
         "cover": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&auto=format&fit=crop&q=80"
       }
     ];
@@ -301,9 +278,7 @@
         "desc": "Cả nhà cùng chuyển về tổ ấm tự tay thiết kế, bắt đầu viết tiếp những chương hạnh phúc."
       }
     ];
-    // =========================================================================
 
-    // --- STREAMING_CHUNK: Khởi chạy Component chính của ứng dụng... ---
     function App() {
       // --- STATE QUẢN LÝ DỮ LIỆU ---
       const [albumTitle, setAlbumTitle] = useState(() => localStorage.getItem('family_albumTitle') || INITIAL_SETTINGS.albumTitle);
@@ -385,28 +360,15 @@
       const [activeTab, setActiveTab] = useState('general'); 
       const audioRef = useRef(null);
 
-      // --- HỆ THỐNG THÔNG BÁO VÀ HỘP THOẠI XÁC NHẬN TÙY CHỈNH ---
+      // --- HỆ THỐNG THÔNG BÁO VÀ HỘP THOẠI XÁC NHẬN TÙY CHỈNH CHỐNG CHẶN iFRAME ---
       const [notification, setNotification] = useState(null); 
       const [confirmDialog, setConfirmDialog] = useState(null); 
 
-      // --- STREAMING_CHUNK: Thiết lập bộ phát thông báo Toast & Định dạng ngày an toàn ---
+      // --- TỰ KHỞI TẠO THÔNG BÁO TOAST ---
       const showToast = (text, type = 'success') => {
         setNotification({ text, type });
         setTimeout(() => setNotification(null), 4000);
       };
-
-      // Bộ định dạng ngày an toàn chống sập trang trắng khi ngày rỗng
-      const formatPhotoDate = (dateString) => {
-        if (!dateString) return "Kỷ niệm";
-        const d = new Date(dateString);
-        return isNaN(d.getTime()) ? "Kỷ niệm" : d.toLocaleDateString('vi-VN');
-      };
-
-      // Định nghĩa các biến hiển thị chuẩn xác
-      const activeAlbum = albums.find(a => a.id === activeAlbumId);
-      const filteredPhotos = viewMode === 'all' 
-        ? photos 
-        : (activeAlbumId ? photos.filter(p => p.albumId === activeAlbumId) : photos);
 
       // --- ĐỒNG BỘ LOCAL STORAGE ---
       useEffect(() => {
@@ -472,6 +434,7 @@
         }
       }, [isPlaying, musicUrl]);
 
+      // --- TRÌNH CHIẾU TỰ ĐỘNG TRONG LIGHTBOX ---
       useEffect(() => {
         let intervalId;
         if (isSlideshowActive && activePhotoIndex !== null) {
@@ -486,16 +449,6 @@
 
       const togglePlay = () => {
         setIsPlaying(!isPlaying);
-      };
-
-      const nextPhoto = () => {
-        if (filteredPhotos.length === 0) return;
-        setActivePhotoIndex((prev) => (prev + 1) % filteredPhotos.length);
-      };
-
-      const prevPhoto = () => {
-        if (filteredPhotos.length === 0) return;
-        setActivePhotoIndex((prev) => (prev - 1 + filteredPhotos.length) % filteredPhotos.length);
       };
 
       // Đóng và lưu cấu hình chung
@@ -555,62 +508,6 @@
         });
       };
 
-      // --- STREAMING_CHUNK: Xây dựng hệ thống xuất file index.html mới tự động ---
-      const handleDownloadWholeFile = async () => {
-        try {
-          // Lấy mã nguồn gốc của chính trang web hiện tại từ server/hosting
-          const response = await fetch(window.location.href);
-          let htmlText = await response.text();
-          
-          // Trích xuất cấu hình hiện tại trong State
-          const currentSettings = {
-            albumTitle,
-            albumSubtitle,
-            musicUrl,
-            anniversaryDate,
-            adminPin
-          };
-          
-          const configString = `// =========================================================================
-    // ⚠️ PHẦN KHỞI TẠO DỮ LIỆU GỐC (DÀNH CHO KHÁCH TRUY CẬP LẦN ĐẦU)
-    // =========================================================================
-    const INITIAL_SETTINGS = ${JSON.stringify(currentSettings, null, 6)};
-
-    const INITIAL_MEMBERS = ${JSON.stringify(members, null, 6)};
-
-    const INITIAL_ALBUMS = ${JSON.stringify(albums, null, 6)};
-
-    const INITIAL_PHOTOS = ${JSON.stringify(photos, null, 6)};
-
-    const INITIAL_TIMELINE = ${JSON.stringify(timeline, null, 6)};
-    // =========================================================================`;
-
-          // Tìm chính xác khu vực dữ liệu mẫu gốc của file để thay thế tự động
-          const regex = /\/\/ =========================================================================\s*\/\/ ⚠️ PHẦN KHỞI TẠO DỮ LIỆU GỐC[\s\S]*?\/\/ =========================================================================/;
-          
-          if (regex.test(htmlText)) {
-            htmlText = htmlText.replace(regex, configString);
-          } else {
-            showToast("Gặp sự cố cấu trúc tệp tin. Bạn hãy dùng Cách 2 để sao chép thủ công nhé!", "error");
-            return;
-          }
-          
-          // Tạo đối tượng tải tệp tin HTML mới hoàn chỉnh
-          const blob = new Blob([htmlText], { type: "text/html;charset=utf-8" });
-          const url = URL.createObjectURL(blob);
-          const downloadAnchor = document.createElement('a');
-          downloadAnchor.setAttribute("href", url);
-          downloadAnchor.setAttribute("download", "index.html");
-          document.body.appendChild(downloadAnchor);
-          downloadAnchor.click();
-          downloadAnchor.remove();
-          URL.revokeObjectURL(url);
-          showToast("🎉 Đã xuất file index.html mới hoàn chỉnh chứa tất cả dữ liệu của bạn!");
-        } catch (err) {
-          showToast("Có lỗi khi tự động đóng gói file. Bạn hãy sử dụng Cách 2 dán thủ công nhé!", "error");
-        }
-      };
-
       // --- TẢI FILE SAO LƯU (.JSON) ---
       const handleExportBackup = () => {
         const backupData = {
@@ -660,7 +557,7 @@
         };
       };
 
-      // --- STREAMING_CHUNK: Tạo các trình chỉnh sửa danh sách thành viên và quyển album... ---
+      // --- CÁC THAO TÁC SỬA ĐỔI THÀNH VIÊN ---
       const handleAddMember = () => {
         const newMember = {
           id: Date.now().toString(),
@@ -673,6 +570,7 @@
         showToast("Đã tạo mới 1 thành viên trống.");
       };
 
+      // --- BẢN NÂNG CẤP ĐỒNG BỘ GITHUB 1-CLICK ---
       const getGeneratedConfigString = () => {
         const currentSettings = {
           albumTitle,
@@ -736,6 +634,7 @@
         showToast("Đã xóa thông tin thành viên.");
       };
 
+      // --- CÁC THAO TÁC SỬA ĐỔI ALBUMS ---
       const handleAddAlbum = () => {
         const newAlbum = {
           id: 'album_' + Date.now().toString(),
@@ -763,7 +662,7 @@
         });
       };
 
-      // --- STREAMING_CHUNK: Tạo các trình xử lý ảnh và bóc tách dữ liệu ---
+      // --- CÁC THAO TÁC SỬA ĐỔI HÌNH ẢNH THỦ CÔNG ---
       const handleAddPhoto = (targetAlbumId) => {
         const newPhoto = {
           id: Date.now().toString(),
@@ -785,6 +684,7 @@
         showToast("Đã gỡ ảnh khỏi album thành công.");
       };
 
+      // --- CÁC THAO TÁC SỬA ĐỔI DÒNG THỜI GIAN ---
       const handleAddTimeline = () => {
         const newMilestone = {
           id: Date.now().toString(),
@@ -805,6 +705,7 @@
         showToast("Đã xóa mốc thời gian kỷ niệm.");
       };
 
+      // --- CHỌN ẢNH ĐẠI DIỆN / BÌA ALBUM TỪ ALBUM CỦA CHÍNH MÌNH ---
       const handleSelectAvatarFromAlbum = (photoUrl) => {
         if (activeAvatarSelectorMemberId) {
           let avatarUrl = photoUrl;
@@ -831,6 +732,7 @@
         }
       };
 
+      // --- TRÍCH XUẤT ẢNH ĐƠN LẺ TỪ MÃ NGUỒN HTML DÁN TRỰC TIẾP ---
       const handleExtractSingleFromHtml = () => {
         if (!singleHtmlInput.trim() || !htmlExtractorTarget) return;
         try {
@@ -871,6 +773,7 @@
         }
       };
 
+      // --- BỘ TRÍCH XUẤT ẢNH TỪ TRANG CHIA SẺ GOOGLE PHOTOS CÔNG KHAI (DÙNG CHUNG) ---
       const handleExtractImageFromGPhotos = async (url, onSuccess, onError) => {
         if (!url || !url.trim()) return;
         
@@ -935,6 +838,7 @@
         }
       };
 
+      // --- TRÍCH XUẤT ẢNH ĐẠI DIỆN CHO THÀNH VIÊN ---
       const handleExtractAvatarFromLink = (memberId, url) => {
         setIsExtractingAvatar(memberId);
         handleExtractImageFromGPhotos(url,
@@ -950,6 +854,7 @@
         );
       };
 
+      // --- TRÍCH XUẤT LIÊN KẾT ẢNH TRỰC TIẾP CHO ẢNH ĐƠN LẺ TRONG THƯ VIỆN ---
       const handleExtractPhotoFromLink = (photoId, url) => {
         setIsExtractingPhotoId(photoId);
         handleExtractImageFromGPhotos(url,
@@ -965,6 +870,7 @@
         );
       };
 
+      // --- PHƯƠNG ÁN DỰ PHÒNG HOÀN HẢO KHÔNG LỖI CORS: QUÉT MÃ NGUỒN HTML CỦA ALBUM (100% THÀNH CÔNG) ---
       const handleImportFromPastedHtml = (targetType, existingId, newName) => {
         if (!pastedHtmlSource.trim()) return;
         setIsScraping(true);
@@ -1038,6 +944,7 @@
         }
       };
 
+      // --- ĐỒNG BỘ GOOGLE PHOTOS QUA LINK CHIA SẺ ---
       const handleImportAlbum = async (url, targetType, existingId, newName) => {
         if (!url.trim()) return;
         setIsScraping(true);
@@ -1094,7 +1001,11 @@
 
         try {
           setCurrentProxyStatus('Đang bóc tách dữ liệu tệp tin ảnh từ Google Photos...');
+          
+          // Giải mã chuỗi HTML chuyên sâu để khử sạch các mã hóa Unicode và trốn thoát của Google
           const cleanHtml = decodeGooglePhotosHtml(htmlContents);
+          
+          // Regex quét link ảnh gốc phân phối vạn năng của Google Photos
           const regex = /(https:\/\/[a-zA-Z0-9.-]*googleusercontent\.com\/[a-zA-Z0-9\-_/]{30,})/g;
           const foundUrls = new Set();
           let match;
@@ -1114,6 +1025,7 @@
 
           let finalAlbumId = existingId;
 
+          // Nếu chọn tự động khởi tạo album mới tinh
           if (targetType === 'new') {
             const resolvedName = newName.trim() || `Album mới (${new Date().toLocaleDateString('vi-VN')})`;
             const newAlbumId = 'album_' + Date.now().toString();
@@ -1149,8 +1061,8 @@
           showToast(`🎉 Thành công! Đồng bộ hoàn tất. Đã thêm ${newPhotos.length} bức ảnh vào album của bạn.`);
           setInputAlbumUrl('');
           setImportNewAlbumName('');
-          setActiveAlbumId(finalAlbumId);
-          setShowSettings(false);
+          setActiveAlbumId(finalAlbumId); // Tự động mở xem album mới đồng bộ luôn
+          setShowSettings(false); // Tắt bảng cài đặt để xem kết quả
         } catch (err) {
           setScrapeError(err.message || 'Lỗi bóc tách tệp Album.');
         } finally {
@@ -1159,38 +1071,49 @@
         }
       };
 
-      const handleImportDirectLinks = (targetType, albumId, newName) => {
-        if (!inputDirectUrls.trim()) return;
-        const lines = inputDirectUrls.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-        
-        let finalAlbumId = albumId;
-        if (targetType === 'new') {
-          const resolvedName = newName.trim() || `Album mới tinh (${new Date().toLocaleDateString('vi-VN')})`;
-          finalAlbumId = 'album_' + Date.now().toString();
-          const newAlbum = {
-            id: finalAlbumId,
-            name: resolvedName,
-            desc: `Bộ sưu tập gồm ${lines.length} ảnh nạp thủ công.`,
-            cover: lines[0] || 'https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600'
-          };
-          setAlbums([...albums, newAlbum]);
-        }
+      // --- KHỞI TẠO AVATAR THÀNH VIÊN VỚI GRADIENT TỰ ĐỘNG CHỐNG HỎNG ANH ---
+      const renderAvatar = (member, sizeClasses = "w-24 h-24 text-2xl") => {
+        const initials = member.name ? member.name.trim().split(' ').pop()[0].toUpperCase() : '?';
+        const hasAvatar = member.avatar && member.avatar.trim() !== '';
 
-        const todayString = new Date().toISOString().split('T')[0];
-        const newPhotos = lines.map((url, i) => ({
-          id: `direct_${Date.now()}_${i}`,
-          url: url,
-          caption: `Kỷ niệm nạp thủ công #${i + 1}`,
-          date: todayString,
-          albumId: finalAlbumId
-        }));
-
-        setPhotos([...newPhotos, ...photos]);
-        setInputDirectUrls('');
-        showToast(`🎉 Đã nạp thành công ${newPhotos.length} ảnh đơn lẻ vào hệ thống album!`);
+        return (
+          <div className={`relative ${sizeClasses} rounded-full overflow-hidden ring-4 ring-amber-100 group-hover:ring-rose-200 transition-all duration-300 flex items-center justify-center bg-gradient-to-br from-amber-100 via-orange-100 to-rose-100 shadow-inner`}>
+            {hasAvatar ? (
+              <img 
+                src={member.avatar} 
+                alt={member.name}
+                className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+                onError={(e) => {
+                  e.target.style.display = 'none';
+                  const fallback = e.target.parentNode.querySelector('.avatar-text-fallback');
+                  if (fallback) fallback.classList.remove('hidden');
+                }}
+              />
+            ) : null}
+            <div className={`avatar-text-fallback ${hasAvatar ? 'hidden' : ''} w-full h-full flex items-center justify-center text-amber-950 font-extrabold font-serif tracking-wider`}>
+              {initials}
+            </div>
+          </div>
+        );
       };
 
-      // --- STREAMING_CHUNK: Tạo các thành phần Render giao diện mượt mà... ---
+      // --- LỌC VÀ CHUYỂN SLIDE HÌNH ẢNH ---
+      const activeAlbum = albums.find(a => a.id === activeAlbumId);
+
+      const filteredPhotos = viewMode === 'all' 
+        ? photos 
+        : (activeAlbumId ? photos.filter(p => p.albumId === activeAlbumId) : []);
+
+      const nextPhoto = () => {
+        if (filteredPhotos.length === 0) return;
+        setActivePhotoIndex((prev) => (prev + 1) % filteredPhotos.length);
+      };
+
+      const prevPhoto = () => {
+        if (filteredPhotos.length === 0) return;
+        setActivePhotoIndex((prev) => (prev - 1 + filteredPhotos.length) % filteredPhotos.length);
+      };
+
       return (
         <div className="min-h-screen text-slate-800 font-sans selection:bg-rose-100 selection:text-rose-700 bg-[#faf6f0]">
           
@@ -1209,9 +1132,9 @@
               <div className="flex items-center space-x-4">
                 <button 
                   onClick={togglePlay}
-                  className="flex items-center space-x-2 bg-amber-50 hover:bg-amber-100 text-amber-900 px-3 py-1.5 rounded-full transition-all border border-amber-200 text-sm group shadow-xs animate-fade-in"
+                  className="flex items-center space-x-2 bg-amber-50 hover:bg-amber-100 text-amber-900 px-3 py-1.5 rounded-full transition-all border border-amber-200 text-sm group"
                 >
-                  <div className={`relative w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center border border-amber-300 shadow-sm ${isPlaying ? 'animate-spin-slow' : ''}`}>
+                  <div className={`relative w-6 h-6 rounded-full bg-slate-800 flex items-center justify-center border border-amber-300 shadow-sm ${isPlaying ? 'animate-spin' : ''}`} style={{ animationDuration: '4s' }}>
                     <div className="w-2.5 h-2.5 rounded-full bg-amber-50"></div>
                   </div>
                   <span className="font-medium hidden md:inline">
@@ -1232,7 +1155,7 @@
 
           {/* --- HERO BANNER & BỘ ĐẾM NGÀY --- */}
           <section className="relative overflow-hidden py-16 lg:py-24 bg-gradient-to-b from-orange-100/50 to-orange-50/20">
-            <div className="max-w-4xl mx-auto text-center px-4 relative z-10 animate-fade-in">
+            <div className="max-w-4xl mx-auto text-center px-4 relative z-10">
               
               <span className="inline-flex items-center space-x-1.5 px-3 py-1 bg-rose-100 text-rose-700 rounded-full text-xs font-semibold uppercase tracking-wider mb-6 animate-bounce">
                 <HeartIcon className="w-3.5 h-3.5" />
@@ -1292,7 +1215,7 @@
             </div>
           </section>
 
-          {/* --- QUẢN LÝ ALBUM & LƯỚI TRÌNH BÀY ẢNH --- */}
+          {/* --- ALBUM ẢNH PHÂN THEO SỰ KIỆN KHÔNG TRÀN LAN --- */}
           <section className="py-16 bg-white/60">
             <div className="max-w-6xl mx-auto px-4">
               
@@ -1303,15 +1226,16 @@
                   </h2>
                   <p className="text-slate-500 text-sm mt-1">
                     {viewMode === 'all' 
-                      ? 'Hiển thị toàn bộ hình ảnh không phân biệt Album' 
+                      ? 'Hiển thị toàn bộ hình ảnh không phân chia Bộ sưu tập' 
                       : activeAlbumId 
                         ? activeAlbum?.desc 
-                        : 'Lựa chọn một quyển album bên dưới để xem các mốc ảnh kỷ niệm'
+                        : 'Lựa chọn một quyển album bên dưới để mở rộng xem chi tiết hình ảnh'
                     }
                   </p>
                 </div>
 
-                <div className="flex bg-amber-100/50 p-1 rounded-xl border border-amber-200 self-center md:self-end">
+                {/* Switch chuyển đổi xem linh hoạt */}
+                <div className="flex bg-amber-100/50 p-1 rounded-xl border border-amber-200">
                   <button
                     onClick={() => { setViewMode('album'); setActiveAlbumId(null); }}
                     className={`px-4 py-2 rounded-lg text-xs md:text-sm font-semibold transition-all duration-300 flex items-center space-x-2 ${
@@ -1330,7 +1254,7 @@
                         : 'text-amber-900/70 hover:text-amber-900'
                     }`}
                   >
-                    <span>🖼 Tất cả ({photos.length})</span>
+                    <span>🖼 Xem tất cả ảnh ({photos.length})</span>
                   </button>
                 </div>
               </div>
@@ -1346,9 +1270,11 @@
                         onClick={() => { setActiveAlbumId(album.id); setViewMode('album'); }}
                         className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-md hover:shadow-2xl hover:-translate-y-2 transition-all-custom duration-300 relative aspect-[3/4] flex flex-col justify-end border border-amber-100/70"
                       >
+                        {/* Giả lập gáy sách 3D sang trọng */}
                         <div className="absolute left-0 top-0 bottom-0 w-3.5 bg-gradient-to-r from-black/30 via-black/10 to-transparent z-20 rounded-l-2xl"></div>
                         <div className="absolute left-3.5 top-0 bottom-0 w-1 bg-white/20 z-20"></div>
 
+                        {/* Ảnh bìa */}
                         <div className="absolute inset-0 bg-slate-100">
                           <img 
                             src={album.cover} 
@@ -1359,6 +1285,7 @@
                           <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-black/10 group-hover:via-black/40 transition-colors duration-300"></div>
                         </div>
 
+                        {/* Huy hiệu số lượng */}
                         <div className="absolute top-4 right-4 z-20">
                           <span className="bg-amber-400 text-amber-950 text-xs font-bold px-3 py-1 rounded-full shadow-md flex items-center space-x-1">
                             <span>📂</span> 
@@ -1366,6 +1293,7 @@
                           </span>
                         </div>
 
+                        {/* Nội dung bìa album */}
                         <div className="p-6 relative z-10 text-white ml-2">
                           <h3 className="text-xl font-serif font-bold text-amber-100 tracking-wide mb-2 group-hover:text-amber-300 transition-colors">
                             {album.name}
@@ -1382,6 +1310,7 @@
                     );
                   })}
 
+                  {/* Nút thêm Album nhanh */}
                   <div 
                     onClick={handleSettingsClick}
                     className="border-2 border-dashed border-amber-300 bg-amber-50/20 hover:bg-amber-50/50 rounded-2xl flex flex-col items-center justify-center p-8 text-center cursor-pointer transition-all duration-300 aspect-[3/4]"
@@ -1390,21 +1319,22 @@
                       ➕
                     </div>
                     <h4 className="text-base font-bold text-amber-900">Thêm Album Mới</h4>
-                    <p className="text-xs text-slate-500 mt-2">Phân loại kỷ niệm không bị tràn lan.</p>
+                    <p className="text-xs text-slate-500 mt-2">Tạo album mới để phân loại kỷ niệm không bị tràn lan.</p>
                   </div>
                 </div>
               )}
 
-              {/* CHẾ ĐỘ 2: ĐANG XEM ẢNH TRONG MỘT ALBUM SỰ KIỆN */}
+              {/* CHẾ ĐỘ 2: ĐANG TRONG MỘT ALBUM CHI TIẾT */}
               {viewMode === 'album' && activeAlbumId && activeAlbum && (
                 <div className="space-y-6">
                   
+                  {/* Thanh điều hướng */}
                   <div className="flex flex-wrap items-center justify-between bg-white p-4 rounded-2xl border border-orange-100/60 shadow-sm gap-4">
                     <button
                       onClick={() => setActiveAlbumId(null)}
                       className="flex items-center space-x-2 text-amber-900 hover:text-rose-700 font-bold text-sm transition-colors py-1.5 px-3 rounded-lg hover:bg-orange-50"
                     >
-                      <span>⬅ Quay lại danh sách Album</span>
+                      <span>⬅ Quay lại tất cả Album</span>
                     </button>
 
                     <div className="flex items-center space-x-3">
@@ -1412,13 +1342,13 @@
                         onClick={() => {
                           if (filteredPhotos.length > 0) {
                             setActivePhotoIndex(0);
-                            setIsSlideshowActive(true); 
+                            setIsSlideshowActive(true); // Tự động phát slideshow
                           }
                         }}
                         disabled={filteredPhotos.length === 0}
                         className={`flex items-center space-x-2 px-4 py-1.5 rounded-full text-xs font-bold shadow-sm border transition-all ${
                           filteredPhotos.length > 0
-                            ? 'bg-rose-500 hover:bg-rose-600 text-white border-rose-600 active:scale-95'
+                            ? 'bg-rose-500 hover:bg-rose-600 text-white border-rose-600'
                             : 'bg-slate-100 text-slate-400 border-slate-200 cursor-not-allowed'
                         }`}
                       >
@@ -1434,17 +1364,18 @@
                         }}
                         className="bg-amber-50 hover:bg-amber-100 text-amber-900 px-4 py-1.5 rounded-full text-xs font-bold transition-all border border-amber-200 flex items-center space-x-1"
                       >
-                        <span>📥 Thêm ảnh vào album này</span>
+                        <span>📥 Đồng bộ thêm ảnh</span>
                       </button>
                     </div>
                   </div>
 
+                  {/* Lưới ảnh trong Album */}
                   <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
                     {filteredPhotos.map((photo, index) => (
                       <div 
                         key={photo.id}
                         onClick={() => setActivePhotoIndex(index)}
-                        className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 animate-fade-in"
+                        className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300"
                       >
                         <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
                           <img 
@@ -1452,12 +1383,12 @@
                             alt={photo.caption}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
-                            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000" }}
+                            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80" }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                             <p className="text-white font-medium text-xs line-clamp-2 leading-relaxed">{photo.caption}</p>
                             <span className="text-amber-300 text-[10px] mt-1.5 block font-bold">
-                              {formatPhotoDate(photo.date)}
+                              {new Date(photo.date).toLocaleDateString('vi-VN')}
                             </span>
                           </div>
                         </div>
@@ -1468,7 +1399,7 @@
                       <div className="col-span-full py-20 text-center bg-white rounded-2xl border-2 border-dashed border-amber-200 text-slate-400 flex flex-col items-center justify-center p-6">
                         <span className="text-4xl mb-4">📸</span>
                         <p className="font-bold text-slate-600">Hiện album chưa được nạp ảnh nào</p>
-                        <p className="text-xs text-slate-400 mt-2 max-w-sm">Mời bạn nhấp "Thêm ảnh vào album này" ở trên để gán link ảnh vào sự kiện gia đình nhé.</p>
+                        <p className="text-xs text-slate-400 mt-2 max-w-sm">Mời bạn click "Thêm ảnh vào album này" để dán địa chỉ hình ảnh thủ công hoặc quét từ Google Photos.</p>
                       </div>
                     )}
                   </div>
@@ -1476,7 +1407,7 @@
                 </div>
               )}
 
-              {/* CHẾ ĐỘ 3: HIỂN THỊ TẤT CẢ HÌNH ẢNH */}
+              {/* CHẾ ĐỘ 3: HIỂN THỊ TẤT CẢ HÌNH ẢNH (Gộp toàn bộ) */}
               {viewMode === 'all' && (
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                   {filteredPhotos.map((photo, index) => {
@@ -1485,7 +1416,7 @@
                       <div 
                         key={photo.id}
                         onClick={() => setActivePhotoIndex(index)}
-                        className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 hover:shadow-xl transition-all duration-300 animate-fade-in"
+                        className="group cursor-pointer bg-white rounded-2xl overflow-hidden shadow-md border border-slate-100 transition-all duration-300"
                       >
                         <div className="relative aspect-[4/3] overflow-hidden bg-slate-50">
                           <img 
@@ -1502,8 +1433,8 @@
                               </span>
                             )}
                             <p className="text-white font-medium text-xs line-clamp-2 leading-relaxed">{photo.caption}</p>
-                            <span className="text-slate-300 text-[10px] mt-1.5 block font-bold">
-                              {formatPhotoDate(photo.date)}
+                            <span className="text-slate-300 text-[10px] mt-1 block">
+                              {new Date(photo.date).toLocaleDateString('vi-VN')}
                             </span>
                           </div>
                         </div>
@@ -1516,7 +1447,7 @@
             </div>
           </section>
 
-          {/* --- TIMELINE --- */}
+          {/* --- DÒNG THỜI GIAN TIMELINE --- */}
           <section className="py-20 max-w-4xl mx-auto px-4">
             <div className="text-center mb-16">
               <h2 className="text-3xl font-serif font-bold text-amber-950">Hành Trình Hạnh Phúc</h2>
@@ -1544,7 +1475,7 @@
             </div>
           </section>
 
-          {/* --- FOOTER --- */}
+          {/* --- FOOTER TRANG WEB --- */}
           <footer className="bg-amber-950 text-amber-100 py-12 px-4 border-t border-amber-900">
             <div className="max-w-4xl mx-auto text-center space-y-6">
               <div className="flex items-center justify-center space-x-2">
@@ -1554,18 +1485,18 @@
               <p className="text-sm text-amber-200/60 max-w-md mx-auto italic">
                 "Gia đình là nơi cuộc sống bắt đầu và tình yêu không bao giờ kết thúc."
               </p>
-              <div className="pt-6 border-t border-amber-900 text-[11px] text-amber-200/40 flex flex-col sm:flex-row items-center justify-between gap-4 font-sans">
+              <div className="pt-6 border-t border-amber-900 text-[11px] text-amber-200/40 flex flex-col sm:flex-row items-center justify-between gap-4">
                 <span>© 2026 {albumTitle}. Thiết kế với trọn vẹn yêu thương.</span>
                 <span>Đồng bộ hóa Album ảnh gia đình mượt mà</span>
               </div>
             </div>
           </footer>
 
-          {/* --- VIEW HÌNH LIGHTBOX --- */}
+          {/* --- LIGHTBOX (XEM ẢNH PHÓNG TO & AUTO SLIDESHOW) --- */}
           {activePhotoIndex !== null && filteredPhotos[activePhotoIndex] && (
-            <div className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-4 font-sans animate-fade-in">
+            <div className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-4 animate-fade-in font-sans">
               
-              <button  
+              <button 
                 onClick={() => { setActivePhotoIndex(null); setIsSlideshowActive(false); }}
                 className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-colors z-50"
                 title="Đóng xem"
@@ -1577,296 +1508,1106 @@
 
               <button 
                 onClick={() => setIsSlideshowActive(!isSlideshowActive)}
-                className={`absolute top-4 left-4 z-50 flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-bold shadow-sm transition-all ${
+                className={`absolute top-4 left-4 z-50 flex items-center space-x-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${
                   isSlideshowActive 
                     ? 'bg-rose-600 text-white animate-pulse' 
-                    : 'bg-white/10 text-white hover:bg-white/20'
+                    : 'bg-white/10 hover:bg-white/20 text-white'
                 }`}
               >
-                <span>{isSlideshowActive ? '⏸ Tạm dừng trình chiếu' : '▶ Phát trình chiếu'}</span>
+                <span>{isSlideshowActive ? '⏸ Tạm dừng trình chiếu' : '▶ Phát trình chiếu (3s)'}</span>
               </button>
 
               <div className="relative max-w-4xl w-full flex items-center justify-center">
                 <button 
-                  onClick={(e) => { e.stopPropagation(); prevPhoto(); }} 
-                  className="absolute left-2 text-white bg-white/10 hover:bg-white/20 p-2 rounded-full"
+                  onClick={(e) => { e.stopPropagation(); prevPhoto(); setIsSlideshowActive(false); }}
+                  className="absolute left-2 md:-left-16 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all"
                 >
-                  ◀
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
+                  </svg>
                 </button>
-                <img src={filteredPhotos[activePhotoIndex].url} alt="" className="max-h-[75vh] max-w-full object-contain rounded-lg" />
+
+                <img 
+                  src={filteredPhotos[activePhotoIndex].url} 
+                  alt={filteredPhotos[activePhotoIndex].caption} 
+                  className="max-h-[75vh] max-w-full object-contain rounded-lg shadow-2xl transition-all duration-300"
+                />
+
                 <button 
-                  onClick={(e) => { e.stopPropagation(); nextPhoto(); }} 
-                  className="absolute right-2 text-white bg-white/10 hover:bg-white/20 p-2 rounded-full"
+                  onClick={(e) => { e.stopPropagation(); nextPhoto(); setIsSlideshowActive(false); }}
+                  className="absolute right-2 md:-right-16 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all"
                 >
-                  ▶
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
+                  </svg>
                 </button>
+              </div>
+
+              <div className="mt-6 text-center text-white max-w-xl">
+                <span className="text-xs uppercase tracking-widest text-amber-400 font-semibold bg-amber-950/60 px-3 py-1 rounded-full mb-3 inline-block">
+                  {albums.find(a => a.id === filteredPhotos[activePhotoIndex].albumId)?.name || 'Bộ sưu tập'}
+                </span>
+                <p className="text-base font-medium">{filteredPhotos[activePhotoIndex].caption}</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Chụp ngày: {new Date(filteredPhotos[activePhotoIndex].date).toLocaleDateString('vi-VN')}
+                </p>
               </div>
             </div>
           )}
 
-          {/* --- DIALOG PIN --- */}
+          {/* --- MODAL PIN BẢO MẬT --- */}
           {showPinModal && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in">
-              <form onSubmit={handleVerifyPin} className="bg-white rounded-2xl max-w-sm w-full p-6 text-center space-y-4 shadow-xl border border-amber-50">
-                <h3 className="text-lg font-bold text-amber-950 font-serif">Xác Thực Quản Trị Viên</h3>
-                <input 
-                  type="password" 
-                  value={pinInput} 
-                  onChange={(e) => setPinInput(e.target.value)} 
-                  placeholder="Nhập mã PIN (Mặc định: 1234)" 
-                  className="w-full border rounded-xl px-3 py-2 text-center focus:ring-2 focus:ring-amber-500/20 outline-none font-mono tracking-widest" 
-                  autoFocus 
-                />
-                {pinError && <p className="text-xs text-rose-600 font-semibold">{pinError}</p>}
-                <div className="flex space-x-2">
-                  <button type="button" onClick={() => { setShowPinModal(false); setPinInput(''); setPinError(''); }} className="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold">Hủy</button>
-                  <button type="submit" className="flex-1 py-2 bg-amber-800 text-white rounded-xl text-xs font-bold">Xác nhận</button>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in font-sans">
+              <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-amber-100 text-center space-y-4">
+                <div className="w-12 h-12 bg-amber-100 text-amber-800 rounded-full flex items-center justify-center mx-auto text-xl">
+                  🔑
                 </div>
-              </form>
+                <div>
+                  <h3 className="text-lg font-bold text-amber-950 font-serif">Xác Thực Quản Trị Viên</h3>
+                  <p className="text-xs text-slate-500 mt-1 font-sans">Vui lòng nhập mã PIN để vào phần cấu hình album gia đình.</p>
+                </div>
+                <form onSubmit={handleVerifyPin} className="space-y-3">
+                  <input 
+                    type="password" 
+                    value={pinInput}
+                    onChange={(e) => setPinInput(e.target.value)}
+                    placeholder="Nhập mã PIN (Mặc định: 1234)"
+                    className="w-full border border-slate-200 rounded-xl px-3 py-2 text-center text-sm font-mono tracking-widest focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none"
+                    autoFocus
+                  />
+                  {pinError && (
+                    <p className="text-[11px] text-rose-600 font-semibold font-sans">{pinError}</p>
+                  )}
+                  <div className="flex space-x-2 pt-2 font-sans">
+                    <button 
+                      type="button"
+                      onClick={() => { setShowPinModal(false); setPinInput(''); setPinError(''); }}
+                      className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-all"
+                    >
+                      Hủy bỏ
+                    </button>
+                    <button 
+                      type="submit"
+                      className="flex-1 py-2 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-amber-800/10"
+                    >
+                      Xác nhận
+                    </button>
+                  </div>
+                </form>
+              </div>
             </div>
           )}
 
-          {/* --- DRAWER QUẢN TRỊ --- */}
+          {/* --- CÀI ĐẶT DRAWER (TÙY BIẾN ALBUM) --- */}
           {showSettings && (
-            <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs animate-fade-in">
+            <div className="fixed inset-0 z-50 flex justify-end bg-black/50 backdrop-blur-xs transition-opacity font-sans">
               <div className="absolute inset-0" onClick={() => setShowSettings(false)}></div>
-              <div className="relative w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col z-10 overflow-hidden">
-                <div className="p-5 border-b flex items-center justify-between bg-amber-50/50">
-                  <h2 className="text-lg font-bold font-serif text-amber-900">Tùy Biến Giao Diện Album</h2>
-                  <button onClick={() => setShowSettings(false)} className="p-1.5 text-slate-500 hover:bg-amber-100 rounded-full">✕</button>
+
+              <div className="relative w-full max-w-2xl bg-white h-full shadow-2xl flex flex-col z-10 transition-transform transform duration-300">
+                
+                <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-amber-50/50">
+                  <div className="flex items-center space-x-2 text-amber-900">
+                    <SettingsIcon className="w-5 h-5" />
+                    <h2 className="text-lg font-bold font-serif">Tùy Biến Giao Diện Album</h2>
+                  </div>
+                  <button 
+                    onClick={() => setShowSettings(false)}
+                    className="p-1.5 hover:bg-amber-100 text-slate-500 hover:text-slate-800 rounded-full transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
 
-                <div className="flex border-b text-sm overflow-x-auto whitespace-nowrap bg-slate-50">
-                  {['general', 'albums', 'photos', 'members', 'timeline', 'github'].map((tab) => (
-                    <button key={tab} onClick={() => setActiveTab(tab)} className={`flex-1 py-3 px-4 font-bold border-b-2 text-center capitalize ${activeTab === tab ? 'border-amber-700 text-amber-800 bg-white' : 'border-transparent text-slate-500'}`}>{tab === 'github' ? 'Đồng bộ GitHub 🚀' : tab}</button>
-                  ))}
+                <div className="flex border-b border-slate-100 text-sm overflow-x-auto whitespace-nowrap bg-slate-50">
+                  <button 
+                    onClick={() => setActiveTab('general')}
+                    className={`flex-1 py-3 px-3 font-bold text-center border-b-2 transition-colors ${activeTab === 'general' ? 'border-amber-700 text-amber-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+                  >
+                    Thông tin chung
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('albums')}
+                    className={`flex-1 py-3 px-3 font-bold text-center border-b-2 transition-colors ${activeTab === 'albums' ? 'border-amber-700 text-amber-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+                  >
+                    Album ({albums.length})
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('photos')}
+                    className={`flex-1 py-3 px-3 font-bold text-center border-b-2 transition-colors ${activeTab === 'photos' ? 'border-amber-700 text-amber-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+                  >
+                    Quản lý ảnh ({photos.length})
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('members')}
+                    className={`flex-1 py-3 px-3 font-bold text-center border-b-2 transition-colors ${activeTab === 'members' ? 'border-amber-700 text-amber-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+                  >
+                    Thành viên ({members.length})
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('timeline')}
+                    className={`flex-1 py-3 px-3 font-bold text-center border-b-2 transition-colors ${activeTab === 'timeline' ? 'border-amber-700 text-amber-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+                  >
+                    Kỷ niệm ({timeline.length})
+                  </button>
+                  <button 
+                    onClick={() => setActiveTab('github')}
+                    className={`flex-1 py-3 px-3 font-bold text-center border-b-2 transition-colors ${activeTab === 'github' ? 'border-amber-700 text-amber-800 bg-white' : 'border-transparent text-slate-500 hover:text-slate-800'}`}
+                  >
+                    Đồng bộ GitHub 🚀
+                  </button>
                 </div>
 
                 <div className="flex-grow p-6 overflow-y-auto space-y-6">
+                  
+                  {/* TAB 1: THÔNG TIN CHUNG */}
                   {activeTab === 'general' && (
-                    <div className="space-y-4 text-sm">
-                      <div><label className="block text-xs font-bold text-slate-500 uppercase">Tên Album / Gia đình</label><input type="text" value={tempTitle} onChange={(e) => setTempAlbumTitle(e.target.value)} className="w-full border rounded-xl px-3.5 py-2 mt-1 outline-none" /></div>
-                      <div><label className="block text-xs font-bold text-slate-500 uppercase">Lời tựa ngắn</label><textarea value={tempSubtitle} onChange={(e) => setTempAlbumSubtitle(e.target.value)} rows={2} className="w-full border rounded-xl px-3.5 py-2 mt-1 outline-none" /></div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div><label className="block text-xs font-bold text-slate-500 uppercase">Ngày kỷ niệm</label><input type="date" value={tempAnniversaryDate} onChange={(e) => setTempAnniversaryDate(e.target.value)} className="w-full border rounded-xl px-3.5 py-2 mt-1 outline-none" /></div>
-                        <div><label className="block text-xs font-bold text-rose-500 uppercase">Mã PIN Mới</label><input type="text" value={tempAdminPin} onChange={(e) => setTempAdminPin(e.target.value)} className="w-full border border-rose-200 rounded-xl px-3.5 py-2 mt-1 outline-none font-mono" /></div>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Tên Album / Gia đình</label>
+                        <input 
+                          type="text" 
+                          value={tempTitle}
+                          onChange={(e) => setTempAlbumTitle(e.target.value)}
+                          className="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none"
+                        />
                       </div>
-                      <div><label className="block text-xs font-bold text-slate-500 uppercase">Link nhạc nền Lofi (.mp3)</label><input type="text" value={tempMusicUrl} onChange={(e) => setTempMusicUrl(e.target.value)} className="w-full border rounded-xl px-3.5 py-2 mt-1 outline-none font-mono text-xs" /></div>
-                      <button onClick={handleResetData} className="px-4 py-2 bg-rose-50 text-rose-600 rounded-xl text-xs font-bold mt-4">Đặt lại mẫu gốc</button>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Lời tựa ngắn / Châm ngôn</label>
+                        <textarea 
+                          value={tempSubtitle}
+                          onChange={(e) => setTempAlbumSubtitle(e.target.value)}
+                          rows={3}
+                          className="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none"
+                        />
+                      </div>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Ngày kỷ niệm gia đình</label>
+                          <input 
+                            type="date" 
+                            value={tempAnniversaryDate}
+                            onChange={(e) => setTempAnniversaryDate(e.target.value)}
+                            className="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs font-bold uppercase tracking-wider text-rose-500 mb-1.5">🔑 Mã PIN Quản Trị Mới</label>
+                          <input 
+                            type="text" 
+                            value={tempAdminPin}
+                            onChange={(e) => setTempAdminPin(e.target.value)}
+                            className="w-full border border-rose-200 rounded-xl px-3.5 py-2 text-sm focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none font-mono"
+                          />
+                        </div>
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold uppercase tracking-wider text-slate-500 mb-1.5">Link nhạc nền (File .mp3 phát trực tiếp)</label>
+                        <input 
+                          type="text" 
+                          value={tempMusicUrl}
+                          onChange={(e) => setTempMusicUrl(e.target.value)}
+                          className="w-full border border-slate-200 rounded-xl px-3.5 py-2 text-sm font-mono text-xs focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 outline-none"
+                        />
+                      </div>
+
+                      <div className="pt-4 border-t border-slate-100 flex justify-between">
+                        <button 
+                          onClick={handleResetData}
+                          className="px-4 py-2 bg-rose-50 text-rose-600 hover:bg-rose-100 rounded-xl text-xs font-bold transition-all"
+                        >
+                          Đặt lại toàn bộ mẫu gốc
+                        </button>
+                      </div>
                     </div>
                   )}
 
+                  {/* TAB 2: QUẢN LÝ DANH SÁCH ALBUMS */}
                   {activeTab === 'albums' && (
                     <div className="space-y-4">
-                      <div className="flex justify-between items-center"><h3 className="text-sm font-bold text-amber-900">Danh sách Album</h3><button onClick={handleAddAlbum} className="px-3 py-1.5 bg-amber-800 text-white rounded-lg text-xs font-bold">+ Thêm Album</button></div>
-                      {albums.map((album) => (
-                        <div key={album.id} className="p-4 border rounded-xl bg-slate-50 space-y-2 relative">
-                          <button onClick={() => handleDeleteAlbum(album.id)} className="absolute top-2 right-2 text-slate-400 hover:text-rose-600">✕</button>
-                          <div className="grid grid-cols-2 gap-2">
-                            <input type="text" value={album.name} onChange={(e) => handleUpdateAlbum(album.id, 'name', e.target.value)} className="border rounded px-2 py-1 text-xs" placeholder="Tên Album" />
-                            <input type="text" value={album.cover} onChange={(e) => handleUpdateAlbum(album.id, 'cover', e.target.value)} className="border rounded px-2 py-1 text-xs font-mono" placeholder="Link ảnh bìa URL" />
-                          </div>
-                          <textarea value={album.desc} onChange={(e) => handleUpdateAlbum(album.id, 'desc', e.target.value)} rows={1} className="w-full border rounded px-2 py-1 text-xs" placeholder="Mô tả sự kiện album" />
-                        </div>
-                      ))}
-                    </div>
-                  )}
-
-                  {activeTab === 'photos' && (
-                    <div className="space-y-4">
-                      <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-bold">
-                        <button type="button" onClick={() => setGPhotosSyncTab('auto')} className={`flex-1 py-1 rounded-lg ${gPhotosSyncTab === 'auto' ? 'bg-amber-800 text-white' : 'text-slate-500'}`}>Quét Link tự động</button>
-                        <button type="button" onClick={() => setGPhotosSyncTab('manualHtml')} className={`flex-1 py-1 rounded-lg ${gPhotosSyncTab === 'manualHtml' ? 'bg-amber-800 text-white' : 'text-slate-500'}`}>Đồng bộ bằng mã HTML</button>
-                      </div>
-
-                      {gPhotosSyncTab === 'auto' ? (
-                        <div className="p-4 bg-amber-50/50 border rounded-xl space-y-2 text-xs">
-                          <input type="text" value={inputAlbumUrl} onChange={(e) => setInputAlbumUrl(e.target.value)} placeholder="Dán link chia sẻ Album Google Photos công khai vào đây..." className="w-full border p-2 rounded-lg font-mono" />
-                          <button onClick={() => handleImportAlbum(inputAlbumUrl, importTargetType, importAlbumId, importNewAlbumName)} disabled={isScraping || !inputAlbumUrl.trim()} className="w-full py-2 bg-amber-800 text-white rounded-lg font-bold">🌐 Quét và nạp dữ liệu Album</button>
-                        </div>
-                      ) : (
-                        <div className="p-4 bg-indigo-50/50 border rounded-xl space-y-2 text-xs">
-                          <textarea value={pastedHtmlSource} onChange={(e) => setPastedHtmlSource(e.target.value)} placeholder="Nhấn Ctrl+U ở trang Album Google Photos, Copy và Paste toàn bộ mã nguồn vào đây..." rows={3} className="w-full border p-2 rounded-lg font-mono" />
-                          <button onClick={() => handleImportFromPastedHtml(importTargetType, importAlbumId, importNewAlbumName)} disabled={isScraping || !pastedHtmlSource.trim()} className="w-full py-2 bg-indigo-800 text-white rounded-lg font-bold">🚀 Đồng bộ ảnh từ mã nguồn HTML</button>
-                        </div>
-                      )}
-
-                      <div className="p-4 bg-rose-50/50 border border-rose-100 rounded-xl space-y-2 text-xs font-sans">
-                        <label className="block font-bold text-rose-950">📋 Thêm thủ công danh sách đường dẫn ảnh đơn lẻ</label>
-                        <p className="text-[11px] text-slate-500">Mỗi dòng tương ứng với 1 link ảnh trực tiếp (nhận cả nguồn ảnh Unsplash, Facebook, Google...):</p>
-                        <textarea
-                          value={inputDirectUrls}
-                          onChange={(e) => setInputDirectUrls(e.target.value)}
-                          placeholder="https://lh3.googleusercontent.com/pw/...&#10;https://images.unsplash.com/photo-..."
-                          rows={3}
-                          className="w-full border rounded-lg p-2 font-mono focus:ring-1 focus:ring-rose-400 outline-none"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => handleImportDirectLinks(importTargetType, importAlbumId, importNewAlbumName)}
-                          disabled={!inputDirectUrls.trim()}
-                          className="w-full py-2 bg-rose-700 text-white rounded-lg font-bold hover:bg-rose-800 transition-colors"
+                      <div className="flex justify-between items-center bg-slate-50 p-2 rounded-xl">
+                        <h3 className="text-sm font-bold text-amber-900">Danh sách Album</h3>
+                        <button 
+                          onClick={handleAddAlbum}
+                          className="flex items-center space-x-1 px-3 py-1.5 bg-amber-800 text-white hover:bg-amber-900 rounded-lg text-xs font-semibold transition-all"
                         >
-                          📥 Nạp danh sách ảnh đơn lẻ vừa dán
+                          <PlusIcon className="w-4 h-4" />
+                          <span>Thêm Album mới</span>
                         </button>
                       </div>
 
-                      <div className="bg-slate-50 p-3 rounded-lg border text-xs space-y-2">
-                        <label className="block font-bold">Chọn Album đích nạp ảnh:</label>
-                        <div className="flex gap-4"><label className="flex items-center space-x-1"><input type="radio" checked={importTargetType === 'existing'} onChange={() => setImportTargetType('existing')} /><span>Vào album:</span></label><label className="flex items-center space-x-1 text-rose-700 font-bold"><input type="radio" checked={importTargetType === 'new'} onChange={() => setImportTargetType('new')} /><span>Tự tạo Quyển mới tinh</span></label></div>
-                        {importTargetType === 'existing' ? (
-                          <select value={importAlbumId} onChange={(e) => setImportAlbumId(e.target.value)} className="w-full border rounded p-1.5 bg-white">{albums.map(al => <option key={al.id} value={al.id}>{al.name}</option>)}</select>
-                        ) : (
-                          <input type="text" value={importNewAlbumName} onChange={(e) => setImportNewAlbumName(e.target.value)} placeholder="Nhập tên Quyển Album mới..." className="w-full border rounded p-1.5 bg-white font-bold" />
-                        )}
+                      <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+                        {albums.map((album) => {
+                          const count = photos.filter(p => p.albumId === album.id).length;
+                          return (
+                            <div key={album.id} className="p-4 border border-slate-100 rounded-2xl bg-slate-50 space-y-3 relative font-sans">
+                              <button 
+                                onClick={() => handleDeleteAlbum(album.id)}
+                                className="absolute top-4 right-4 text-slate-400 hover:text-rose-600 p-1.5 rounded-full hover:bg-rose-50 transition-all"
+                                title="Xóa Album này"
+                              >
+                                <TrashIcon className="w-4 h-4" />
+                              </button>
+
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                                <div>
+                                  <label className="block text-[10px] font-bold text-slate-400 uppercase">Tên Album</label>
+                                  <input 
+                                    type="text" 
+                                    value={album.name}
+                                    onChange={(e) => handleUpdateAlbum(album.id, 'name', e.target.value)}
+                                    className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs outline-none mt-1 focus:border-amber-500"
+                                  />
+                                </div>
+                                <div className="space-y-1">
+                                  <label className="block text-[10px] font-bold text-slate-400 uppercase">Ảnh bìa Album (URL)</label>
+                                  <div className="flex gap-2">
+                                    <input 
+                                      type="text" 
+                                      value={album.cover}
+                                      onChange={(e) => handleUpdateAlbum(album.id, 'cover', e.target.value)}
+                                      className="flex-grow border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs outline-none font-mono focus:border-amber-500"
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => setActiveCoverSelectorAlbumId(album.id)}
+                                      className="px-2 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg text-xs font-semibold shrink-0 transition-colors"
+                                    >
+                                      📸 Chọn ảnh
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={() => setHtmlExtractorTarget({ type: 'album', id: album.id })}
+                                      className="px-2 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-lg text-xs font-semibold shrink-0 transition-colors flex items-center space-x-1 font-bold"
+                                    >
+                                      <span>📋 Dán HTML</span>
+                                    </button>
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-400 uppercase">Lời mô tả ngắn về Album</label>
+                                <textarea 
+                                  value={album.desc}
+                                  onChange={(e) => handleUpdateAlbum(album.id, 'desc', e.target.value)}
+                                  rows={2}
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs outline-none mt-1 focus:border-amber-500"
+                                />
+                              </div>
+
+                              <div className="text-[10px] text-amber-800 font-bold">
+                                📂 Hiện đang chứa: {count} bức ảnh.
+                              </div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 3: QUẢN LÝ ẢNH & ĐỒNG BỘ ĐA NĂNG */}
+                  {activeTab === 'photos' && (
+                    <div className="space-y-5">
+                      
+                      {/* Chọn phương thức dán */}
+                      <div className="flex bg-slate-100 p-1 rounded-xl border border-slate-200 text-xs">
+                        <button
+                          type="button"
+                          onClick={() => setGPhotosSyncTab('auto')}
+                          className={`flex-1 py-1.5 rounded-lg font-bold text-center transition-all ${gPhotosSyncTab === 'auto' ? 'bg-amber-800 text-white shadow-sm' : 'text-slate-500'}`}
+                        >
+                          Cách 1: Quét link tự động
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setGPhotosSyncTab('manualHtml')}
+                          className={`flex-1 py-1.5 rounded-lg font-bold text-center transition-all ${gPhotosSyncTab === 'manualHtml' ? 'bg-amber-800 text-white shadow-sm' : 'text-slate-500'}`}
+                        >
+                          Cách 2: Đồng bộ mã HTML (100% Ok)
+                        </button>
                       </div>
 
-                      <div className="space-y-3 max-h-[35vh] overflow-y-auto pr-1">
-                        {photos.map((photo) => (
-                          <div key={photo.id} className="p-3 border rounded-xl bg-slate-100 space-y-2 relative text-xs flex gap-3">
-                            <img src={photo.url} className="w-16 h-14 object-cover rounded border self-center" onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=200" }} />
-                            <div className="flex-grow space-y-1.5">
-                              <div className="flex gap-1">
-                                <input type="text" value={photo.url} onChange={(e) => handleUpdatePhoto(photo.id, 'url', e.target.value)} className="flex-grow border rounded px-1.5 py-0.5 font-mono text-[10px]" placeholder="Link hình ảnh URL" />
-                                <button type="button" onClick={() => setHtmlExtractorTarget({ type: 'photo', id: photo.id })} className="px-1.5 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded text-[10px] font-bold">📋 Dán HTML</button>
+                      {/* PHƯƠNG THỨC A: ĐỒNG BỘ TỰ ĐỘNG QUA LINK PROXY */}
+                      {gPhotosSyncTab === 'auto' && (
+                        <div className="p-5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-200/50 rounded-2xl space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xl">⚡</span>
+                            <h4 className="text-sm font-bold text-amber-950">Đồng bộ Album Google Photos công khai</h4>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            Nhập liên kết chia sẻ của Album (bắt đầu bằng <code className="bg-white px-1 py-0.5 border rounded text-[10px]">https://photos.google.com/share/...</code>) để quét nhanh.
+                          </p>
+                          
+                          <div className="space-y-3 pt-1">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                              <div className="md:col-span-2">
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Link album Google Photos</label>
+                                <input 
+                                  type="text" 
+                                  value={inputAlbumUrl}
+                                  onChange={(e) => setInputAlbumUrl(e.target.value)}
+                                  placeholder="https://photos.google.com/share/..."
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500 font-mono"
+                                />
                               </div>
-                              <input type="text" value={photo.caption} onChange={(e) => handleUpdatePhoto(photo.id, 'caption', e.target.value)} className="w-full border rounded px-1.5 py-0.5 text-[11px]" placeholder="Chú thích ảnh" />
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Chuyên mục / Đích lưu ảnh</label>
+                                <select 
+                                  value={importAlbumId}
+                                  onChange={(e) => setImportAlbumId(e.target.value)}
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500"
+                                >
+                                  {albums.map((al) => (
+                                    <option key={al.id} value={al.id}>{al.name}</option>
+                                  ))}
+                                </select>
+                              </div>
                             </div>
-                            <button onClick={() => handleDeletePhoto(photo.id)} className="text-slate-400 hover:text-rose-600 absolute top-1 right-2 font-bold text-sm">×</button>
+
+                            <div className="bg-white p-3 rounded-xl border border-slate-100 space-y-2 text-xs">
+                              <label className="block text-[10px] font-bold text-slate-500 uppercase">Vị trí lưu ảnh quét được:</label>
+                              
+                              <div className="flex flex-wrap gap-4 pt-1">
+                                <label className="flex items-center space-x-1.5 cursor-pointer">
+                                  <input 
+                                    type="radio" 
+                                    name="targetType" 
+                                    checked={importTargetType === 'existing'}
+                                    onChange={() => setImportTargetType('existing')}
+                                  />
+                                  <span>Lưu vào Album đã chọn</span>
+                                </label>
+
+                                <label className="flex items-center space-x-1.5 cursor-pointer">
+                                  <input 
+                                    type="radio" 
+                                    name="targetType" 
+                                    checked={importTargetType === 'new'}
+                                    onChange={() => setImportTargetType('new')}
+                                  />
+                                  <span className="font-bold text-rose-700">Khởi tạo Quyển Album mới tinh</span>
+                                </label>
+                              </div>
+
+                              {importTargetType === 'new' && (
+                                <input 
+                                  type="text"
+                                  value={importNewAlbumName}
+                                  onChange={(e) => setImportNewAlbumName(e.target.value)}
+                                  placeholder="Nhập tên Album mới (Ví dụ: Chuyến Đi Đà Nẵng 2026)"
+                                  className="w-full border border-rose-200 bg-rose-50/20 rounded-lg px-2.5 py-2 text-xs outline-none mt-1 font-bold text-slate-700"
+                                />
+                              )}
+                            </div>
+
+                            <button
+                              onClick={() => handleImportAlbum(inputAlbumUrl, importTargetType, importAlbumId, importNewAlbumName)}
+                              disabled={isScraping || !inputAlbumUrl.trim()}
+                              className={`w-full py-2.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center space-x-2 ${
+                                isScraping || !inputAlbumUrl.trim() 
+                                  ? 'bg-slate-300 cursor-not-allowed' 
+                                  : 'bg-amber-800 hover:bg-amber-900 shadow-md shadow-amber-800/10'
+                              }`}
+                            >
+                              {isScraping ? <span>Đang quét ảnh...</span> : <span>📥 Đồng bộ hóa Album tự động</span>}
+                            </button>
+
+                            {isScraping && currentProxyStatus && (
+                              <p className="text-[11px] text-amber-700 italic animate-pulse">⏳ {currentProxyStatus}</p>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* PHƯƠNG THỨC B: QUÉT BẰNG MÃ NGUỒN HTML DÁN TRỰC TIẾP (100% THÀNH CÔNG) */}
+                      {gPhotosSyncTab === 'manualHtml' && (
+                        <div className="p-5 bg-gradient-to-r from-indigo-500/10 to-amber-500/10 border border-indigo-200/50 rounded-2xl space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xl">🛠</span>
+                            <h4 className="text-sm font-bold text-indigo-950">Đồng bộ tuyệt đối bằng mã nguồn HTML của Album</h4>
+                          </div>
+                          
+                          <div className="p-3 bg-white border border-slate-100 rounded-xl space-y-1.5 text-[11px] leading-relaxed text-slate-600">
+                            <p className="font-bold text-indigo-900">Các bước thực hiện nhanh chóng trên máy tính:</p>
+                            <ol className="list-decimal list-inside space-y-1 pl-1">
+                              <li>Mở link Album Google Photos của bạn trên trình duyệt Web.</li>
+                              <li>Nhấn phím tắt <code className="bg-slate-100 px-1 border rounded font-mono">Ctrl + U</code> (hoặc nhấp chuột phải chọn <strong>Xem nguồn trang - View page source</strong>).</li>
+                              <li>Nhấn <code className="bg-slate-100 px-1 border rounded font-mono">Ctrl + A</code> để chọn tất cả mã chữ, rồi nhấn <code className="bg-slate-100 px-1 border rounded font-mono">Ctrl + C</code> để Sao chép.</li>
+                              <li>Dán toàn bộ đoạn mã đó vào ô nhập liệu dưới đây và nhấn nút quét ảnh.</li>
+                            </ol>
+                          </div>
+
+                          <div className="space-y-3 pt-1">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                              <div className="md:col-span-2">
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Mã nguồn HTML của Album</label>
+                                <textarea 
+                                  value={pastedHtmlSource}
+                                  onChange={(e) => setPastedHtmlSource(e.target.value)}
+                                  placeholder="Nhấp chuột vào đây và nhấn Ctrl+V để dán mã nguồn..."
+                                  rows={3}
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500 font-mono"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Chuyên mục / Đích lưu ảnh</label>
+                                <select 
+                                  value={importAlbumId}
+                                  onChange={(e) => setImportAlbumId(e.target.value)}
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500"
+                                >
+                                  {albums.map((al) => (
+                                    <option key={al.id} value={al.id}>{al.name}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                            <div className="bg-white p-3 rounded-xl border border-slate-100 space-y-2 text-xs">
+                              <label className="block text-[10px] font-bold text-slate-500 uppercase">Vị trí lưu ảnh bóc tách:</label>
+                              
+                              <div className="flex flex-wrap gap-4 pt-1">
+                                <label className="flex items-center space-x-1.5 cursor-pointer">
+                                  <input 
+                                    type="radio" 
+                                    name="targetTypeHtml" 
+                                    checked={importTargetType === 'existing'}
+                                    onChange={() => setImportTargetType('existing')}
+                                  />
+                                  <span>Lưu vào Album đã chọn</span>
+                                </label>
+
+                                <label className="flex items-center space-x-1.5 cursor-pointer">
+                                  <input 
+                                    type="radio" 
+                                    name="targetTypeHtml" 
+                                    checked={importTargetType === 'new'}
+                                    onChange={() => setImportTargetType('new')}
+                                  />
+                                  <span className="font-bold text-rose-700">Khởi tạo Quyển Album mới tinh</span>
+                                </label>
+                              </div>
+
+                              {importTargetType === 'new' && (
+                                <input 
+                                  type="text"
+                                  value={importNewAlbumName}
+                                  onChange={(e) => setImportNewAlbumName(e.target.value)}
+                                  placeholder="Nhập tên Album mới (Ví dụ: Chuyến Đi Đà Nẵng 2026)"
+                                  className="w-full border border-rose-200 bg-rose-50/20 rounded-lg px-2.5 py-2 text-xs outline-none mt-1 font-bold text-slate-700"
+                                />
+                              )}
+                            </div>
+
+                            <button
+                              onClick={() => handleImportFromPastedHtml(importTargetType, importAlbumId, importNewAlbumName)}
+                              disabled={isScraping || !pastedHtmlSource.trim()}
+                              className={`w-full py-2.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center space-x-2 ${
+                                isScraping || !pastedHtmlSource.trim() 
+                                  ? 'bg-slate-300 cursor-not-allowed' 
+                                  : 'bg-indigo-800 hover:bg-indigo-900 shadow-md'
+                              }`}
+                            >
+                              <span>🚀 Khởi động quét ảnh từ mã nguồn HTML</span>
+                            </button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* KHU VỰC DỰ PHÒNG CHỐNG LỖI HIỂN THỊ - DÁN DANH SÁCH LINK ĐƠN LẺ */}
+                      <div className="p-5 bg-gradient-to-r from-rose-500/10 to-amber-500/10 border border-rose-200/50 rounded-2xl space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xl">📋</span>
+                          <h4 className="text-sm font-bold text-rose-950 font-sans">Giải pháp thủ công: Dán trực tiếp danh sách link ảnh</h4>
+                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed font-sans">
+                          Nếu quét tự động Google Photos bị chặn, hãy dán tất cả các liên kết đó vào ô dưới đây (mỗi dòng một link) để nạp ảnh trực tiếp siêu tốc!
+                        </p>
+                        
+                        <div className="space-y-3">
+                          <textarea
+                            value={inputDirectUrls}
+                            onChange={(e) => setInputDirectUrls(e.target.value)}
+                            placeholder="Dán các đường dẫn ảnh trực tiếp tại đây...&#10;https://lh3.googleusercontent.com/pw/...&#10;https://images.unsplash.com/photo-..."
+                            rows={4}
+                            className="w-full border border-slate-200 bg-white rounded-xl p-3 text-xs font-mono focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none"
+                          />
+                          <button
+                            onClick={() => handleImportDirectLinks(importTargetType, importAlbumId, importNewAlbumName)}
+                            disabled={!inputDirectUrls.trim() || isScraping}
+                            className={`w-full py-2.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center space-x-2 ${
+                              !inputDirectUrls.trim() || isScraping
+                                ? 'bg-slate-300 cursor-not-allowed'
+                                : 'bg-rose-700 hover:bg-rose-800 shadow-md shadow-rose-700/10 active:scale-[0.99]'
+                            }`}
+                          >
+                            <span>📥 Nạp danh sách ảnh đã dán</span>
+                          </button>
+                        </div>
+                      </div>
+
+                      {/* Thao tác hiển thị thông báo trạng thái */}
+                      {scrapeError && (
+                        <div className="text-xs text-rose-600 font-semibold bg-rose-50 p-3 rounded-xl border border-rose-100 leading-relaxed">
+                          ⚠️ {scrapeError}
+                        </div>
+                      )}
+
+                      {scrapeSuccess && (
+                        <div className="text-xs text-emerald-700 font-semibold bg-emerald-50 p-3 rounded-xl border border-emerald-100 flex items-center justify-between font-sans">
+                          <span>{scrapeSuccess}</span>
+                          <button onClick={() => setScrapeSuccess('')} className="font-bold text-sm px-1">×</button>
+                        </div>
+                      )}
+
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-sm font-bold text-amber-900">Danh sách ảnh hiện tại ({photos.length})</h3>
+                        <button 
+                          onClick={() => handleAddPhoto(importAlbumId)}
+                          className="flex items-center space-x-1 px-3 py-1.5 bg-amber-800 text-white hover:bg-amber-900 rounded-lg text-xs font-semibold transition-all"
+                        >
+                          <PlusIcon className="w-4 h-4" />
+                          <span>Thêm từng ảnh thủ công</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-4 max-h-[38vh] overflow-y-auto pr-1">
+                        {photos.map((photo) => {
+                          const hasWarning = isGooglePhotosPageUrl(photo.url);
+                          return (
+                            <div key={photo.id} className="p-4 border border-slate-100 rounded-2xl bg-slate-50 space-y-3 relative flex flex-col md:flex-row gap-4">
+                              
+                              {/* Preview nhỏ */}
+                              <div className="w-full md:w-28 h-20 rounded-lg overflow-hidden bg-slate-200 border border-slate-100 shrink-0 self-center">
+                                <img 
+                                  src={photo.url} 
+                                  alt={photo.caption} 
+                                  className="w-full h-full object-cover"
+                                  onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80" }}
+                                />
+                              </div>
+
+                              {/* Điền thông tin */}
+                              <div className="flex-grow space-y-2.5">
+                                <div className="grid grid-cols-2 gap-2">
+                                  <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase">Ngày chụp</label>
+                                    <input 
+                                      type="date" 
+                                      value={photo.date}
+                                      onChange={(e) => handleUpdatePhoto(photo.id, 'date', e.target.value)}
+                                      className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs focus:border-amber-500 outline-none"
+                                    />
+                                  </div>
+                                  <div>
+                                    <label className="block text-[10px] font-bold text-slate-400 uppercase">Thuộc Album</label>
+                                    <select 
+                                      value={photo.albumId}
+                                      onChange={(e) => handleUpdatePhoto(photo.id, 'albumId', e.target.value)}
+                                      className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs focus:border-amber-500 outline-none"
+                                    >
+                                      {albums.map((al) => (
+                                        <option key={al.id} value={al.id}>{al.name}</option>
+                                      ))}
+                                    </select>
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <label className="block text-[10px] font-bold text-slate-400 uppercase font-mono">Link địa chỉ hình ảnh (URL)</label>
+                                  <div className="flex gap-2">
+                                    <input 
+                                      type="text" 
+                                      value={photo.url}
+                                      onChange={(e) => handleUpdatePhoto(photo.id, 'url', e.target.value)}
+                                      className={`flex-grow border rounded-lg px-2.5 py-1.5 text-xs font-mono outline-none focus:border-amber-500 ${hasWarning ? 'border-orange-300 bg-orange-50/30' : 'border-slate-200 bg-white'}`}
+                                      placeholder="Dán link ảnh trực tiếp tại đây..."
+                                    />
+                                    <button
+                                      type="button"
+                                      onClick={() => setHtmlExtractorTarget({ type: 'photo', id: photo.id })}
+                                      className="px-2 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-lg text-xs font-semibold shrink-0 transition-colors flex items-center space-x-1 font-bold"
+                                    >
+                                      <span>📋 Dán HTML</span>
+                                    </button>
+                                    {hasWarning && (
+                                      <button
+                                        type="button"
+                                        onClick={() => handleExtractPhotoFromLink(photo.id, photo.url)}
+                                        disabled={isExtractingPhotoId === photo.id}
+                                        className="bg-orange-600 hover:bg-orange-700 text-white font-bold px-3 py-1.5 rounded-lg text-xs transition-colors shrink-0"
+                                      >
+                                        {isExtractingPhotoId === photo.id ? 'Đang lấy...' : '⚡ Lấy ảnh'}
+                                      </button>
+                                    )}
+                                  </div>
+                                  {hasWarning && (
+                                    <span className="text-[10px] text-orange-700 font-semibold block mt-1">
+                                      ⚠️ Đây là link Trang Album, không phải link Ảnh trực tiếp.
+                                    </span>
+                                  )}
+                                </div>
+
+                                <div>
+                                  <label className="block text-[10px] font-bold text-slate-400 uppercase">Ghi chú sự kiện ảnh</label>
+                                  <input 
+                                    type="text" 
+                                    value={photo.caption}
+                                    onChange={(e) => handleUpdatePhoto(photo.id, 'caption', e.target.value)}
+                                    className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500"
+                                    placeholder="Chú thích cảm xúc, câu chuyện..."
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Nút xoá ảnh */}
+                              <button 
+                                onClick={() => handleDeletePhoto(photo.id)}
+                                className="absolute top-2 right-2 text-slate-400 hover:text-rose-600 p-1.5 rounded-full hover:bg-rose-50 transition-all"
+                                title="Xóa hình ảnh"
+                              >
+                                <TrashIcon className="w-4 h-4" />
+                              </button>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* TAB 4: THÀNH VIÊN GIA ĐÌNH */}
+                  {activeTab === 'members' && (
+                    <div className="space-y-4">
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-sm font-bold text-amber-900">Danh sách thành viên</h3>
+                        <button 
+                          onClick={handleAddMember}
+                          className="flex items-center space-x-1 px-3 py-1.5 bg-amber-800 text-white hover:bg-amber-900 rounded-lg text-xs font-semibold transition-all"
+                        >
+                          <PlusIcon className="w-4 h-4" />
+                          <span>Thêm người</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+                        {members.map((member) => (
+                          <div key={member.id} className="p-4 border border-slate-100 rounded-2xl bg-slate-50 space-y-3 relative group/item font-sans">
+                            <button 
+                              onClick={() => handleDeleteMember(member.id)}
+                              className="absolute top-4 right-4 text-slate-400 hover:text-rose-600 p-1 rounded-full hover:bg-rose-50 transition-all"
+                            >
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-400 uppercase">Tên thành viên</label>
+                                <input 
+                                  type="text" 
+                                  value={member.name}
+                                  onChange={(e) => handleUpdateMember(member.id, 'name', e.target.value)}
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs outline-none mt-1"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-400 uppercase">Vai trò</label>
+                                <input 
+                                  type="text" 
+                                  value={member.role}
+                                  onChange={(e) => handleUpdateMember(member.id, 'role', e.target.value)}
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs outline-none mt-1"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="space-y-1">
+                              <label className="block text-[10px] font-bold text-slate-400 uppercase">Ảnh đại diện (URL)</label>
+                              <div className="flex gap-2">
+                                <input 
+                                  type="text" 
+                                  value={member.avatar}
+                                  onChange={(e) => handleUpdateMember(member.id, 'avatar', e.target.value)}
+                                  className="flex-grow border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs outline-none font-mono"
+                                  placeholder="Đường dẫn ảnh đại diện..."
+                                />
+                                <button
+                                  type="button"
+                                  onClick={() => setActiveAvatarSelectorMemberId(member.id)}
+                                  className="px-3 py-1 bg-amber-100 hover:bg-amber-200 text-amber-900 rounded-lg text-xs font-semibold shrink-0 transition-colors"
+                                >
+                                  📸 Chọn từ Album
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => setHtmlExtractorTarget({ type: 'member', id: member.id })}
+                                  className="px-2 py-1.5 bg-rose-100 hover:bg-rose-200 text-rose-900 rounded-lg text-xs font-semibold shrink-0 transition-colors flex items-center space-x-1"
+                                >
+                                  <span>📋 Dán HTML</span>
+                                </button>
+                              </div>
+                              {/* Cảnh báo link tạm thời fife.usercontent */}
+                              {isFifeUrl(member.avatar) && (
+                                <div className="mt-1.5 text-[10px] text-orange-700 bg-orange-50/70 p-2.5 rounded-lg border border-orange-200 leading-relaxed font-sans">
+                                  ⚠️ <strong>Liên kết này sẽ bị lỗi hiển thị sau vài giờ!</strong> Đây là link bảo mật tạm thời của Google Photos (<code className="font-mono text-[9px]">fife.usercontent</code>). Xin hãy dán lại bằng phương pháp <strong>Dán HTML</strong> ở ngay bên cạnh để lấy liên kết ảnh trực tiếp vĩnh viễn nhé!
+                                </div>
+                              )}
+                              {/* NÚT TRÍCH XUẤT TỰ ĐỘNG CHO AVATAR */}
+                              {isGooglePhotosPageUrl(member.avatar) && (
+                                <div className="mt-1 text-[10px] text-amber-800 bg-amber-50 p-2 rounded-lg border border-amber-200 flex items-center justify-between gap-2">
+                                  <span>💡 Đây là liên kết Album, không phải liên kết trực tiếp hình ảnh.</span>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleExtractAvatarFromLink(member.id, member.avatar)}
+                                    disabled={isExtractingAvatar === member.id}
+                                    className="bg-amber-600 hover:bg-amber-700 text-white font-bold px-2.5 py-1 rounded transition-colors shrink-0"
+                                  >
+                                    {isExtractingAvatar === member.id ? 'Đang lấy...' : '⚡ Lấy ảnh'}
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] font-bold text-slate-400 uppercase">Lời giới thiệu</label>
+                              <input 
+                                type="text" 
+                                value={member.bio}
+                                onChange={(e) => handleUpdateMember(member.id, 'bio', e.target.value)}
+                                className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs outline-none mt-1"
+                              />
+                            </div>
                           </div>
                         ))}
                       </div>
                     </div>
                   )}
 
-                  {activeTab === 'members' && (
-                    <div className="space-y-4">
-                      {members.map((member) => (
-                        <div key={member.id} className="p-4 border rounded-xl bg-slate-50 space-y-2 relative text-xs">
-                          <button onClick={() => handleDeleteMember(member.id)} className="absolute top-2 right-2 text-slate-400">✕</button>
-                          <div className="grid grid-cols-2 gap-2">
-                            <input type="text" value={member.name} onChange={(e) => handleUpdateMember(member.id, 'name', e.target.value)} className="border rounded px-2 py-1" placeholder="Tên" />
-                            <input type="text" value={member.role} onChange={(e) => handleUpdateMember(member.id, 'role', e.target.value)} className="border rounded px-2 py-1" placeholder="Vai trò" />
-                          </div>
-                          <div className="flex gap-2">
-                            <input type="text" value={member.avatar} onChange={(e) => handleUpdateMember(member.id, 'avatar', e.target.value)} className="flex-grow border rounded px-2 py-1 font-mono" placeholder="Link ảnh đại diện URL" />
-                            <button type="button" onClick={() => setActiveAvatarSelectorMemberId(member.id)} className="px-2 py-1 bg-amber-100 text-amber-900 rounded text-[11px]">Thư viện</button>
-                            <button type="button" onClick={() => setHtmlExtractorTarget({ type: 'member', id: member.id })} className="px-2 py-1 bg-rose-100 text-rose-900 rounded text-[11px] font-bold">📋 HTML</button>
-                          </div>
-                          <input type="text" value={member.bio} onChange={(e) => handleUpdateMember(member.id, 'bio', e.target.value)} className="w-full border rounded px-2 py-1" placeholder="Giới thiệu" />
-                        </div>
-                      ))}
-                      <button onClick={handleAddMember} className="w-full py-2 bg-amber-800 text-white rounded-xl text-xs font-bold">+ Thêm thành viên</button>
-                    </div>
-                  )}
-
+                  {/* TAB 5: DÒNG LỊCH SỬ TIMELINE */}
                   {activeTab === 'timeline' && (
                     <div className="space-y-4">
-                      {timeline.map((event) => (
-                        <div key={event.id} className="p-4 border rounded-xl bg-slate-50 space-y-2 relative text-xs">
-                          <button onClick={() => handleDeleteTimeline(event.id)} className="absolute top-2 right-2 text-slate-400">✕</button>
-                          <div className="grid grid-cols-3 gap-2">
-                            <input type="text" value={event.year} onChange={(e) => handleUpdateTimeline(event.id, 'year', e.target.value)} className="border rounded px-2 py-1 font-mono" placeholder="Năm" />
-                            <input type="text" value={event.title} onChange={(e) => handleUpdateTimeline(event.id, 'title', e.target.value)} className="col-span-2 border rounded px-2 py-1" placeholder="Tên sự kiện" />
+                      <div className="flex justify-between items-center">
+                        <h3 className="text-sm font-bold text-amber-900">Nhật ký hành trình</h3>
+                        <button 
+                          onClick={handleAddTimeline}
+                          className="flex items-center space-x-1 px-3 py-1.5 bg-amber-800 text-white hover:bg-amber-900 rounded-lg text-xs font-semibold transition-all"
+                        >
+                          <PlusIcon className="w-4 h-4" />
+                          <span>Thêm mốc</span>
+                        </button>
+                      </div>
+
+                      <div className="space-y-4 max-h-[50vh] overflow-y-auto pr-1">
+                        {timeline.map((event) => (
+                          <div key={event.id} className="p-4 border border-slate-100 rounded-2xl bg-slate-50 space-y-3 relative font-sans">
+                            <button onClick={() => handleDeleteTimeline(event.id)} className="absolute top-4 right-4 text-slate-400 hover:text-rose-600">
+                              <TrashIcon className="w-4 h-4" />
+                            </button>
+
+                            <div className="grid grid-cols-3 gap-2">
+                              <div className="col-span-1">
+                                <label className="block text-[10px] font-bold text-slate-400 uppercase">Năm</label>
+                                <input 
+                                  type="text" 
+                                  value={event.year}
+                                  onChange={(e) => handleUpdateTimeline(event.id, 'year', e.target.value)}
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs mt-1 font-mono"
+                                />
+                              </div>
+                              <div className="col-span-2">
+                                <label className="block text-[10px] font-bold text-slate-400 uppercase">Tên sự kiện</label>
+                                <input 
+                                  type="text" 
+                                  value={event.title}
+                                  onChange={(e) => handleUpdateTimeline(event.id, 'title', e.target.value)}
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs mt-1"
+                                />
+                              </div>
+                            </div>
+
+                            <div>
+                              <label className="block text-[10px] font-bold text-slate-400 uppercase">Câu chuyện</label>
+                              <textarea 
+                                value={event.desc}
+                                onChange={(e) => handleUpdateTimeline(event.id, 'desc', e.target.value)}
+                                rows={2}
+                                className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs mt-1"
+                              />
+                            </div>
                           </div>
-                          <textarea value={event.desc} onChange={(e) => handleUpdateTimeline(event.id, 'desc', e.target.value)} rows={1} className="w-full border rounded px-2 py-1" placeholder="Câu chuyện kể lại..." />
-                        </div>
-                      ))}
-                      <button onClick={handleAddTimeline} className="w-full py-2 bg-amber-800 text-white rounded-xl text-xs font-bold">+ Thêm cột mốc mới</button>
+                        ))}
+                      </div>
                     </div>
                   )}
 
+                  {/* TAB 6: ĐỒNG BỘ GITHUB & SAO LƯU DỰ PHÒNG */}
                   {activeTab === 'github' && (
-                    <div className="space-y-4 text-xs font-sans">
+                    <div className="space-y-4 font-sans">
+                      
+                      {/* CÔNG CỤ SAO LƯU & KHÔI PHỤC VĨNH VIỄN CHỐNG MẤT DỮ LIỆU */}
                       <div className="p-4 bg-gradient-to-r from-emerald-500/10 to-teal-500/10 border border-emerald-200/50 rounded-2xl space-y-3">
                         <h4 className="font-bold text-emerald-950 text-sm flex items-center space-x-1.5">
-                          <span>💚</span>
-                          <span>Cách 1: Tải file index.html mới về (Dễ nhất - Khuyên dùng)</span>
+                          <span>💾</span>
+                          <span>Công cụ Sao lưu & Khôi phục dữ liệu vĩnh viễn</span>
                         </h4>
                         <p className="text-xs text-slate-600 leading-relaxed">
-                          Tải về file dự phòng chứa toàn bộ ảnh, album sự kiện và cấu hình ngày đếm kỷ niệm của bạn. Sau này khi bạn đổi mã HTML hoặc chuyển host, bạn chỉ cần tải file JSON này lên để khôi phục lại mọi thứ trong 1 giây mà không lo mất dữ liệu!
+                          Tải về file dự phòng chứa toàn bộ ảnh, album sự kiện và cấu hình ngày đếm kỷ niệm của bạn. Sau này khi tôi nâng cấp giao diện hoặc code mới, bạn chỉ cần tải file này lên để khôi phục lại tất cả trong 1 giây!
                         </p>
                         
-                        <div className="grid grid-cols-1 gap-3 pt-1">
+                        <div className="grid grid-cols-2 gap-3 pt-1">
                           <button
                             type="button"
-                            onClick={handleDownloadWholeFile}
-                            className="py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center space-x-1.5 active:scale-95"
+                            onClick={handleExportBackup}
+                            className="py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-1.5 active:scale-95"
                           >
-                            <span>📥 Tải file index.html mới về máy</span>
+                            <span>📥 Tải file sao lưu (.json)</span>
                           </button>
+                          
+                          <label className="py-2.5 bg-teal-700 hover:bg-teal-800 text-white rounded-xl text-xs font-bold transition-all shadow-md flex items-center justify-center space-x-1.5 cursor-pointer text-center active:scale-95">
+                            <span>📤 Khôi phục dữ liệu</span>
+                            <input 
+                              type="file" 
+                              accept=".json" 
+                              onChange={handleImportBackup} 
+                              className="hidden" 
+                            />
+                          </label>
                         </div>
                       </div>
 
-                      <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl space-y-2 text-orange-950 leading-relaxed">
-                        <p className="font-bold">🚀 Quy trình đồng bộ GitHub đơn giản:</p>
-                        <ol className="list-decimal list-inside space-y-1 pl-1 text-[11px] text-slate-700">
-                          <li>Sửa đổi thông tin, dán link ảnh, tạo Quyển mới theo ý muốn của gia đình.</li>
-                          <li>Nhấn nút <strong>"📋 Sao chép mã cấu hình"</strong> dưới đây.</li>
-                          <li>Mở file <code className="bg-white px-1 font-mono text-rose-600">index.html</code> của bạn trên GitHub ra.</li>
-                          <li>Bôi dán đè lên và ấn <strong>Commit changes</strong> là xong!</li>
+                      <div className="p-4 bg-orange-50 border border-orange-100 rounded-xl space-y-2 text-xs">
+                        <h4 className="font-bold text-orange-950 flex items-center space-x-1.5">
+                          <span>🚀</span>
+                          <span>Quy trình đồng bộ cực kỳ đơn giản:</span>
+                        </h4>
+                        <ol className="text-[11px] text-orange-900/90 list-decimal list-inside space-y-1.5 pl-1 leading-relaxed">
+                          <li>Bạn dán dập Album Google Photos, dán danh sách link, hay sửa đổi ngày kỷ niệm trực tiếp trên trang web cho đến khi ưng ý.</li>
+                          <li>Nhấn nút <strong>"📋 Sao chép cấu hình"</strong> ở bên dưới.</li>
+                          <li>Mở file <code className="bg-white px-1 py-0.5 rounded border border-orange-200 font-mono">index.html</code> của bạn trên GitHub.</li>
+                          <li>Bôi đen để chọn toàn bộ đoạn mã khởi tạo ở đầu file (bắt đầu từ dòng <code className="font-mono bg-white text-[10px] text-rose-600 font-bold">INITIAL_SETTINGS = ...</code> cho đến hết dấu <code className="font-mono bg-white text-[10px] text-rose-600 font-bold">// ====================...</code>).</li>
+                          <li>Dán đè (Paste) đoạn mã bạn vừa copy vào đó và ấn <strong>Commit changes</strong>. Vậy là xong!</li>
                         </ol>
                       </div>
 
                       <div className="space-y-3">
-                        <button onClick={handleCopyConfigToClipboard} className="w-full py-3 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 shadow-md shadow-amber-800/10">
-                          <span>📋 Sao chép mã cấu hình GitHub</span>
+                        <button
+                          type="button"
+                          onClick={handleCopyConfigToClipboard}
+                          className="w-full py-3 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2 shadow-md shadow-amber-800/10 active:scale-[0.99]"
+                        >
+                          <span>📋 Sao chép mã cấu hình</span>
                         </button>
-                        <button onClick={handleRestoreFromGithubDefaults} className="w-full py-2 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition-all">🔄 Đồng bộ ngược lại từ tệp GitHub gốc</button>
+
+                        <button
+                          type="button"
+                          onClick={handleRestoreFromGithubDefaults}
+                          className="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-700 rounded-xl text-xs font-bold transition-all flex items-center justify-center space-x-2"
+                        >
+                          <span>🔄 Đồng bộ ngược lại từ tệp GitHub gốc</span>
+                        </button>
+
                         <div className="space-y-1.5">
-                          <label className="block text-[10px] font-bold text-slate-400 uppercase">Mã đồng bộ cấu hình:</label>
-                          <textarea readOnly value={getGeneratedConfigString()} rows={5} className="w-full border bg-slate-50 text-[10px] font-mono rounded-xl p-3 outline-none text-slate-600" onClick={(e) => e.target.select()} />
+                          <label className="block text-[10px] font-bold text-slate-400 uppercase">Xem trước đoạn mã sẽ đồng bộ:</label>
+                          <textarea
+                            readOnly
+                            value={getGeneratedConfigString()}
+                            rows={8}
+                            className="w-full border border-slate-200 bg-slate-50 text-[10px] font-mono rounded-xl p-3 outline-none text-slate-600"
+                            onClick={(e) => e.target.select()}
+                          />
                         </div>
                       </div>
                     </div>
                   )}
+
                 </div>
 
-                <div className="p-4 border-t bg-slate-50 flex justify-end">
-                  <button onClick={handleSaveAllAndClose} className="px-5 py-2 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-sm font-bold shadow-md">Hoàn tất & Lưu lại</button>
+                <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                  <button 
+                    onClick={handleSaveAllAndClose}
+                    className="px-5 py-2 bg-amber-800 hover:bg-amber-900 text-white rounded-xl text-sm font-bold shadow-md shadow-amber-800/10"
+                  >
+                    Hoàn tất & Lưu lại
+                  </button>
                 </div>
               </div>
             </div>
           )}
 
-          {/* --- CÁC MODAL LỰA CHỌN PHỤ ĐỒNG BỘ ẢNH VÀ EXTRACTOR TỪ HTML --- */}
+          {/* --- MODAL CHỌN ẢNH ĐẠI DIỆN TỪ ALBUM --- */}
           {activeAvatarSelectorMemberId && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 animate-fade-in">
-              <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
-                <div className="p-5 border-b flex items-center justify-between bg-amber-50/50"><h3 className="text-lg font-bold font-serif text-amber-900">Chọn ảnh đại diện từ Thư viện</h3><button onClick={() => setActiveAvatarSelectorMemberId(null)} className="p-1 text-slate-500">✕</button></div>
-                <div className="p-6 overflow-y-auto flex-grow bg-[#FAF6F0]/20">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {photos.map((photo) => (<div key={photo.id} onClick={() => handleSelectAvatarFromAlbum(photo.url)} className="group relative aspect-square bg-slate-100 rounded-xl overflow-hidden cursor-pointer hover:ring-4 hover:ring-amber-500 transition-all shadow-sm"><img src={photo.url} className="w-full h-full object-cover" /><div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span className="text-white text-xs font-bold bg-amber-800 px-2.5 py-1 rounded-full">Chọn ảnh</span></div></div>))}
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-fade-in font-sans">
+              <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden shadow-2xl border border-amber-100">
+                
+                <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-amber-50/50">
+                  <div className="flex items-center space-x-2 text-amber-900">
+                    <span className="text-xl">📸</span>
+                    <h3 className="text-lg font-bold font-serif">Chọn ảnh đại diện từ thư viện ảnh gia đình</h3>
                   </div>
+                  <button 
+                    onClick={() => setActiveAvatarSelectorMemberId(null)}
+                    className="p-1 hover:bg-amber-100 text-slate-500 hover:text-slate-800 rounded-full transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
+
+                <div className="p-6 overflow-y-auto flex-grow bg-[#FAF6F0]/20">
+                  {photos.length === 0 ? (
+                    <div className="text-center py-12 text-slate-400">
+                      Chưa có bức ảnh nào được nạp vào album. Hãy dán link ảnh thủ công hoặc quét album trước nhé!
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {photos.map((photo) => (
+                        <div 
+                          key={photo.id}
+                          onClick={() => handleSelectAvatarFromAlbum(photo.url)}
+                          className="group relative aspect-square bg-slate-100 rounded-xl overflow-hidden cursor-pointer hover:ring-4 hover:ring-amber-500 transition-all shadow-sm"
+                        >
+                          <img 
+                            src={photo.url} 
+                            alt={photo.caption} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span className="text-white text-xs font-bold bg-amber-800 px-2.5 py-1 rounded-full shadow-md">Chọn ảnh này</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                  <button 
+                    onClick={() => setActiveAvatarSelectorMemberId(null)}
+                    className="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-sm font-bold transition-all"
+                  >
+                    Đóng
+                  </button>
+                </div>
+
               </div>
             </div>
           )}
 
+          {/* --- MODAL CHỌN ẢNH BÌA ALBUM TỪ ALBUM --- */}
           {activeCoverSelectorAlbumId && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 animate-fade-in">
-              <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden shadow-2xl">
-                <div className="p-5 border-b flex items-center justify-between bg-amber-50/50"><h3 className="text-lg font-bold font-serif text-amber-900">Chọn ảnh bìa Quyển Album</h3><button onClick={() => setActiveCoverSelectorAlbumId(null)} className="p-1 text-slate-500">✕</button></div>
-                <div className="p-6 overflow-y-auto flex-grow bg-[#FAF6F0]/20">
-                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                    {photos.map((photo) => (<div key={photo.id} onClick={() => handleSelectCoverFromAlbum(photo.url)} className="group relative aspect-square bg-slate-100 rounded-xl overflow-hidden cursor-pointer hover:ring-4 hover:ring-amber-500 transition-all shadow-sm"><img src={photo.url} className="w-full h-full object-cover" /><div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center"><span className="text-white text-xs font-bold bg-amber-800 px-2.5 py-1 rounded-full">Chọn làm bìa</span></div></div>))}
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4 animate-fade-in font-sans">
+              <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col overflow-hidden shadow-2xl border border-amber-100">
+                
+                <div className="p-5 border-b border-slate-100 flex items-center justify-between bg-amber-50/50">
+                  <div className="flex items-center space-x-2 text-amber-900">
+                    <span className="text-xl">📸</span>
+                    <h3 className="text-lg font-bold font-serif">Chọn ảnh bìa đại diện cho Album</h3>
                   </div>
+                  <button 
+                    onClick={() => setActiveCoverSelectorAlbumId(null)}
+                    className="p-1 hover:bg-amber-100 text-slate-500 hover:text-slate-800 rounded-full transition-colors"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </button>
                 </div>
+
+                <div className="p-6 overflow-y-auto flex-grow bg-[#FAF6F0]/20">
+                  {photos.length === 0 ? (
+                    <div className="text-center py-12 text-slate-400">
+                      Chưa có bức ảnh nào để chọn làm bìa.
+                    </div>
+                  ) : (
+                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                      {photos.map((photo) => (
+                        <div 
+                          key={photo.id}
+                          onClick={() => handleSelectCoverFromAlbum(photo.url)}
+                          className="group relative aspect-square bg-slate-100 rounded-xl overflow-hidden cursor-pointer hover:ring-4 hover:ring-amber-500 transition-all shadow-sm"
+                        >
+                          <img 
+                            src={photo.url} 
+                            alt={photo.caption} 
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform" 
+                          />
+                          <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                            <span className="text-white text-xs font-bold bg-amber-800 px-2.5 py-1 rounded-full shadow-md">Chọn làm ảnh bìa</span>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-4 border-t border-slate-100 bg-slate-50 flex justify-end">
+                  <button 
+                    onClick={() => setActiveCoverSelectorAlbumId(null)}
+                    className="px-5 py-2 bg-slate-200 hover:bg-slate-300 text-slate-700 rounded-xl text-sm font-bold transition-all"
+                  >
+                    Đóng
+                  </button>
+                </div>
+
               </div>
             </div>
           )}
 
+          {/* --- MODAL TRÍCH XUẤT ẢNH ĐƠN TỪ HTML (MỚI NÂNG CẤP) --- */}
           {htmlExtractorTarget && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-fade-in">
-              <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border flex flex-col space-y-4">
-                <div className="flex items-center space-x-2 text-rose-900 border-b pb-3"><h3 className="text-lg font-bold font-serif">Trích xuất ảnh đơn từ mã HTML</h3></div>
-                <textarea value={singleHtmlInput} onChange={(e) => setSingleHtmlInput(e.target.value)} placeholder="Nhấp chuột vào đây và nhấn Ctrl+V để dán toàn bộ mã nguồn của bức ảnh..." rows={6} className="w-full border rounded-xl p-3 text-xs font-mono outline-none focus:ring-1 focus:ring-rose-400" />
-                <div className="flex space-x-2"><button type="button" onClick={() => { setHtmlExtractorTarget(null); setSingleHtmlInput(''); }} className="flex-1 py-2 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold">Hủy</button><button type="button" onClick={handleExtractSingleFromHtml} className="flex-1 py-2 bg-rose-700 text-white rounded-xl text-xs font-bold">🚀 Trích xuất ảnh</button></div>
+            <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-fade-in font-sans">
+              <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-rose-100 flex flex-col space-y-4">
+                
+                <div className="flex items-center space-x-2 text-rose-900 border-b border-slate-100 pb-3">
+                  <span className="text-xl font-bold">📋</span>
+                  <h3 className="text-lg font-bold font-serif">Trích xuất ảnh đơn từ mã HTML</h3>
+                </div>
+
+                <div className="p-3 bg-rose-50/50 rounded-xl border border-rose-100 text-[11px] leading-relaxed text-rose-950 space-y-1">
+                  <p className="font-bold">💡 Hướng dẫn lấy mã HTML của ảnh:</p>
+                  <ol className="list-decimal list-inside space-y-0.5">
+                    <li>Mở bức ảnh đơn đó trên Google Photos (xem to toàn màn hình).</li>
+                    <li>Nhấn <code className="bg-white px-1 border rounded">Ctrl + U</code> (Xem mã nguồn trang web).</li>
+                    <li>Nhấn <code className="bg-white px-1 border rounded">Ctrl + A</code> để chọn tất cả ➜ rồi <code className="bg-white px-1 border rounded">Ctrl + C</code> để Sao chép.</li>
+                    <li>Dán tất cả mã đó vào ô nhập dưới đây và bấm nút Trích xuất.</li>
+                  </ol>
+                </div>
+
+                <textarea
+                  value={singleHtmlInput}
+                  onChange={(e) => setSingleHtmlInput(e.target.value)}
+                  placeholder="Nhấp chuột vào đây và nhấn Ctrl+V để dán toàn bộ mã nguồn của bức ảnh..."
+                  rows={6}
+                  className="w-full border border-slate-200 bg-white rounded-xl p-3 text-xs font-mono focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none"
+                />
+
+                <div className="flex space-x-2 pt-1 font-sans">
+                  <button 
+                    type="button"
+                    onClick={() => { setHtmlExtractorTarget(null); setSingleHtmlInput(''); }}
+                    className="flex-1 py-2 bg-slate-100 hover:bg-slate-200 text-slate-600 rounded-xl text-xs font-bold transition-all"
+                  >
+                    Hủy bỏ
+                  </button>
+                  <button 
+                    type="button"
+                    onClick={handleExtractSingleFromHtml}
+                    className="flex-1 py-2 bg-rose-700 hover:bg-rose-800 text-white rounded-xl text-xs font-bold transition-all shadow-md shadow-rose-700/10 font-bold"
+                  >
+                    🚀 Trích xuất ảnh
+                  </button>
+                </div>
+
               </div>
             </div>
           )}
 
-          {/* --- HỘP THOẠI TOAST THÔNG BÁO --- */}
+          {/* --- HỘP THOẠI THÔNG BÁO TOAST --- */}
           {notification && (
             <div className="fixed bottom-4 right-4 z-50 bg-slate-900/95 text-white px-5 py-3 rounded-2xl shadow-2xl flex items-center space-x-3 transition-all duration-300 animate-slide-in font-sans">
               <span className="text-lg">{notification.type === 'error' ? '⚠️' : '🎉'}</span>
@@ -1875,7 +2616,7 @@
             </div>
           )}
 
-          {/* --- HỘP THOẠI XÁC NHẬN --- */}
+          {/* --- HỘP THOẠI XÁC NHẬN TÙY CHỈNH --- */}
           {confirmDialog && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 font-sans">
               <div className="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl border border-amber-100 text-center space-y-4">
@@ -1913,13 +2654,3 @@
   </script>
 </body>
 </html>
-```
-eof
-
-### 🌟 Tổng kết các điểm đã sửa chữa và tối ưu hóa:
-1. **Sửa lỗi `renderAvatar`**: Chuyển hàm `renderAvatar` hoàn toàn ra bên ngoài component `App`, đứng độc lập như một hàm tiện ích toàn cục (hoạt động tốt với cơ chế Hoisting của JS), giúp ứng dụng React render trơn tru mà không bao giờ gặp lỗi `ReferenceError`.
-2. **Khắc phục lỗi ngày tháng**: Giữ vững cấu trúc ngày tháng thông minh (`formatPhotoDate`) chống sập trang trắng khi ngày rỗng.
-3. **Sửa phông chữ mượt mà**: Sử dụng phông chữ **Lora** tinh tế không lỗi khoảng cách cho chữ "Tổ Ấm" tiếng Việt.
-4. **Trang web sạch sẽ**: Đã kiểm tra kỹ lưỡng, không còn bất kỳ ký tự rác hay phần chữ "eof" thừa nào rò rỉ ra ngoài trang web.
-
-Anh Thịnh hãy nhấn nút **Preview** để thưởng thức giao diện hoạt động hoàn chỉnh không tỳ vết nhé!
