@@ -152,7 +152,7 @@
       return new Date(); 
     };
 
-    // --- KHỞI TẠO AVATAR THÀNH VIÊN VỚI GRADIENT TỰ ĐỘNG CHỐNG HỎNG ẢNH (KHAI BÁO TOÀN CỤC) ---
+    // --- KHỔI TẠO AVATAR THÀNH VIÊN VỚI GRADIENT TỰ ĐỘNG CHỐNG HỎNG ẢNH (KHAI BÁO TOÀN CỤC) ---
     const renderAvatar = (member, sizeClasses = "w-24 h-24 text-2xl") => {
       const initials = member.name ? member.name.trim().split(' ').pop()[0].toUpperCase() : '?';
       const hasAvatar = member.avatar && member.avatar.trim() !== '';
@@ -181,7 +181,7 @@
     // =========================================================================
     // ⚠️ PHẦN KHỞI TẠO DỮ LIỆU GỐC (DÀNH CHO KHÁCH TRUY CẬP LẦN ĐẦU)
     // =========================================================================
-    const CODE_VERSION = "2026-07-01_v14"; 
+    const CODE_VERSION = "2026-07-01_v15"; 
 
     const INITIAL_SETTINGS = {
       "albumTitle": "Tổ Ấm Yêu Thương",
@@ -226,72 +226,58 @@
       {
         "id": "danang",
         "name": "Chuyến đi Đà Nẵng",
-        "desc": "Rất vui nhưng ....mệt",
-        "cover": "https://lh3.googleusercontent.com/pw/AP1GczMi9oTqzNDzRtnLdpythp99bvkG45YkvwOAnOB3vOsJFGIsmAyEYmVFIE0WQufTVSLAVIrKnnq3vNBaDrMfSosD0SpMjsjV7N2hl_1eYR5JfoW7N2ZCclRVPBL6Zjy5TEQt10cLk_1vV0grRiIsnMioBQ=w519-h923-s-no-gm?authuser=0?w=600&auto=format&fit=crop&q=80"
+        "desc": "19-22-2026 - Rất vui nhưng ....mệt",
+        "cover": "https://images.unsplash.com/photo-1663684591502-93887202a863?q?w=600&auto=format&fit=crop&q=80"
       },
       {
-        "id": "dulich",
-        "name": "Du Lịch Muôn Nơi",
-        "desc": "Những hành trình cát trắng nắng vàng, leo núi lội suối tràn ngập tiếng cười của cả nhà",
-        "cover": "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=600&auto=format&fit=crop&q=80"
+        "id": "tayninh",
+        "name": "Tây Ninh",
+        "desc": "Những hành leo núi bằng cáp treo ... hahaha",
+        "cover": "https://images.unsplash.com/photo-1770820614481-485d99c77ce0?q?w=600&auto=format&fit=crop&q=80"
       },
       {
-        "id": "kyniem",
-        "name": "Kỷ Niệm Đáng Nhớ",
-        "desc": "Ngày kỷ niệm ngày cưới của Ba Mẹ, sinh nhật các con và những mốc thời gian thiêng liêng",
-        "cover": "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=600&auto=format&fit=crop&q=80"
+        "id": "phuquoc",
+        "name": "Phú Quốc 2025",
+        "desc": "Phú Quốc thẳng tiến",
+        "cover": "https://images.unsplash.com/photo-1746292448726-9e75b5f1067d?w=600&auto=format&fit=crop&q=80"
       },
       {
-        "id": "thuongnhat",
-        "name": "Góc Nhỏ Thường Nhật",
-        "desc": "Những khoảnh khắc bình dị mộc mạc bên mâm cơm ấm cúng hay buổi tối cùng đọc sách",
-        "cover": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=600&auto=format&fit=crop&q=80"
+        "id": "thailan",
+        "name": "Thái Lan",
+        "desc": "Thái Lan",
+        "cover": "https://images.unsplash.com/photo-1682826556354-9c7bfd3d1f51?w=600&auto=format&fit=crop&q=80"
       }
     ];
 
     const INITIAL_PHOTOS = [
       {
         "id": "1",
-        "url": "https://lh3.googleusercontent.com/pw/AP1GczMi9oTqzNDzRtnLdpythp99bvkG45YkvwOAnOB3vOsJFGIsmAyEYmVFIE0WQufTVSLAVIrKnnq3vNBaDrMfSosD0SpMjsjV7N2hl_1eYR5JfoW7N2ZCclRVPBL6Zjy5TEQt10cLk_1vV0grRiIsnMioBQ=w519-h923-s-no-gm?authuser=0?w=1000&auto=format&fit=crop&q=80",
+        "url": "https://images.unsplash.com/photo-1663684591502-93887202a863?w=1000&auto=format&fit=crop&q=80",
         "caption": "Bà Nà Hill",
         "date": "2026-02-15",
         "albumId": "danang"
       },
       {
         "id": "2",
-        "url": "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80",
-        "caption": "Chuyến du lịch biển Nha Trang tràn ngập ánh nắng",
+        "url": "https://images.unsplash.com/photo-1770820614482-a47cb24b7943?w=1000&auto=format&fit=crop&q=80",
+        "caption": "Tây Ninh - Núi Bà Đen",
         "date": "2025-06-20",
-        "albumId": "dulich"
+        "albumId": "tayninh"
       },
       {
         "id": "3",
         "url": "https://images.unsplash.com/photo-1543269865-cbf427effbad?w=1000&auto=format&fit=crop&q=80",
-        "caption": "Kỷ niệm ngày cưới hạnh phúc của Bố Mẹ",
+        "caption": "Chung một Đại gia đình",
         "date": "2025-10-10",
-        "albumId": "kyniem"
+        "albumId": "phuquoc"
       },
       {
         "id": "4",
         "url": "https://images.unsplash.com/photo-1516627145497-ae6968895b74?w=1000&auto=format&fit=crop&q=80",
-        "caption": "Một buổi chiều cuối tuần bình yên cả nhà cùng ngồi đọc sách",
+        "caption": "Thái Land ",
         "date": "2026-01-05",
-        "albumId": "thuongnhat"
-      },
-      {
-        "id": "5",
-        "url": "https://images.unsplash.com/photo-1489710437560-659882b5c822?w=1000&auto=format&fit=crop&q=80",
-        "caption": "Bé Bo đón tuổi mới lung linh sắc màu bong bóng",
-        "date": "2025-12-01",
-        "albumId": "kyniem"
-      },
-      {
-        "id": "6",
-        "url": "https://images.unsplash.com/photo-1472289065668-ce650ac443d2?w=1000&auto=format&fit=crop&q=80",
-        "caption": "Baf Nà Hill",
-        "date": "2026-02-14",
-        "albumId": "danang"
-      }
+        "albumId": "thailan"
+      },    
     ];
 
     const INITIAL_TIMELINE = [
@@ -311,11 +297,11 @@
         "id": "3",
         "year": "2014",
         "title": "Chào đời Em Bo dễ thương",
-        "desc": "Tổ ấm nhỏ đã đủ nếp đủ tẻ, rộn rã tiếng cười đùa trẻ thơ mỗi ngày."
+        "desc": "Tổ ấm thêm một cậu ấm, thêm một niềm hạnh phúc."
       },
       {
         "id": "4",
-        "year": "2022",
+        "year": "2002",
         "title": "Ngôi nhà mới, khởi đầu mới",
         "desc": "Cả nhà cùng chuyển về tổ ấm tự tay thiết kế, bắt đầu viết tiếp những chương hạnh phúc."
       }
@@ -976,6 +962,127 @@
         }
       };
 
+      const handleImportAlbum = async (url, targetAlbumId) => {
+        if (!url.trim()) return;
+        setIsScraping(true);
+        setScrapeError(null);
+        setScrapeSuccess('');
+        setCurrentProxyStatus('Đang thiết lập kết nối...');
+
+        const proxyList = [
+          {
+            name: 'CorsProxy.io',
+            getUrl: (target) => `https://corsproxy.io/?${encodeURIComponent(target)}`,
+            parse: async (res) => await res.text()
+          },
+          {
+            name: 'AllOrigins JSON',
+            getUrl: (target) => `https://api.allorigins.win/get?url=${encodeURIComponent(target)}`,
+            parse: async (res) => {
+              const json = await res.json();
+              return json.contents;
+            }
+          },
+          {
+            name: 'CodeTabs Proxy',
+            getUrl: (target) => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(target)}`,
+            parse: async (res) => await res.text()
+          }
+        ];
+
+        let htmlContents = null;
+        let selectedProxyName = '';
+
+        for (let i = 0; i < proxyList.length; i++) {
+          const proxy = proxyList[i];
+          try {
+            setCurrentProxyStatus(`Đang bóc tách qua máy chủ dự phòng ${proxy.name}...`);
+            const response = await fetch(proxy.getUrl(url.trim()));
+            if (response.ok) {
+              htmlContents = await proxy.parse(response);
+              if (htmlContents && htmlContents.length > 500) {
+                selectedProxyName = proxy.name;
+                break;
+              }
+            }
+          } catch (err) {
+            console.warn(`Proxy ${proxy.name} failed`, err);
+          }
+        }
+
+        if (!htmlContents) {
+          setIsScraping(false);
+          setScrapeError(`Cổng đồng bộ trực tuyến tạm thời quá tải. Bạn hãy dán trực tiếp danh sách link ảnh hoặc sử dụng tính năng dán trực tiếp mã nguồn HTML ở tab bên cạnh.`);
+          return;
+        }
+
+        try {
+          setCurrentProxyStatus('Đang bóc tách dữ liệu tệp tin ảnh từ Google Photos...');
+          const cleanHtml = decodeGooglePhotosHtml(htmlContents);
+          const regex = /(https:\/\/[a-zA-Z0-9.-]*googleusercontent\.com\/[a-zA-Z0-9\-_/]{30,})/g;
+          const foundUrls = new Set();
+          let match;
+          
+          while ((match = regex.exec(cleanHtml)) !== null) {
+            const imageUrl = match[1];
+            if (isActualGooglePhoto(imageUrl)) {
+              foundUrls.add(imageUrl.split('=')[0]);
+            }
+          }
+
+          const uniqueUrls = Array.from(foundUrls);
+
+          if (uniqueUrls.length === 0) {
+            throw new Error('Không lấy được dữ liệu ảnh. Hãy dán link album dài (bắt đầu bằng https://photos.google.com/share/...) hoặc sử dụng tính năng dán trực tiếp danh sách link ảnh hoặc mã nguồn HTML ở các ngăn bên dưới.');
+          }
+
+          let finalAlbumId = targetAlbumId;
+
+          if (importTargetType === 'new') {
+            const resolvedName = importNewAlbumName.trim() || `Album mới (${new Date().toLocaleDateString('vi-VN')})`;
+            const newAlbumId = 'album_' + Date.now().toString();
+            const firstImgCover = `${uniqueUrls[0]}=w600`;
+            
+            const newAlbum = {
+              id: newAlbumId,
+              name: resolvedName,
+              desc: `Bộ sưu tập gồm ${uniqueUrls.length} ảnh tự động đồng bộ từ Google Photos.`,
+              cover: firstImgCover
+            };
+
+            const updatedAlbums = [...albums, newAlbum];
+            setAlbums(updatedAlbums);
+            localStorage.setItem('family_albums', JSON.stringify(updatedAlbums));
+            finalAlbumId = newAlbumId;
+          }
+
+          const todayString = new Date().toISOString().split('T')[0];
+          const newPhotos = uniqueUrls.map((rawUrl, i) => {
+            return {
+              id: `gphotos_${Date.now()}_${i}`,
+              url: `${rawUrl}=w1000`,
+              caption: `Kỷ niệm tự động quét #${i + 1}`,
+              date: todayString,
+              albumId: finalAlbumId
+            };
+          });
+
+          const combined = [...newPhotos, ...photos];
+          setPhotos(combined);
+          localStorage.setItem('family_photos', JSON.stringify(combined));
+          showToast(`🎉 Thành công! Đồng bộ hoàn tất. Đã thêm ${newPhotos.length} bức ảnh vào album của bạn.`);
+          setInputAlbumUrl('');
+          setImportNewAlbumName('');
+          setActiveAlbumId(finalAlbumId); // Tự động mở xem album mới đồng bộ luôn
+          setShowSettings(false); // Tắt bảng cài đặt để xem kết quả
+        } catch (err) {
+          setScrapeError(err.message || 'Lỗi bóc tách tệp Album.');
+        } finally {
+          setIsScraping(false);
+          setCurrentProxyStatus('');
+        }
+      };
+
       const handleImportDirectLinks = (targetType, existingId, newName) => {
         if (!inputDirectUrls.trim()) return;
         setIsScraping(true);
@@ -1094,7 +1201,7 @@
         } catch (e) {
           showToast('Trình duyệt chặn sao chép tự động. Hãy bôi đen copy ở ô xem trước phía dưới.', 'error');
         }
-        document.body.appendChild(textarea);
+        document.body.removeChild(textarea);
       };
 
       return (
@@ -1211,13 +1318,13 @@
             </div>
           </section>
 
-          {/* --- ALBUM ẢNH PHÂN THEO SỰ KIỆN KHÔNG TRÀN LAN --- */}
+          {/* --- ALBUM ẢNH PHÂN THEO SỰ KIỆN --- */}
           <section className="py-16 bg-white/60">
             <div className="max-w-6xl mx-auto px-4">
               
               <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 border-b border-orange-100 pb-6">
                 <div className="mb-4 md:mb-0 text-center md:text-left">
-                  <h2 className="text-3xl font-serif font-bold text-amber-950">
+                  <h2 className="text-3xl font-serif font-bold text-amber-955">
                     {viewMode === 'all' ? 'Tất Cả Kỷ Niệm' : activeAlbumId ? `Kỷ Niệm: ${activeAlbum?.name}` : 'Album Kỷ Niệm Gia Đình'}
                   </h2>
                   <p className="text-slate-500 text-sm mt-1">
@@ -1379,7 +1486,7 @@
                             alt={photo.caption}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
-                            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80" }}
+                            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1770820614482-a47cb24b7943?w=1000&auto=format&fit=crop&q=80" }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                             <p className="text-white font-medium text-xs line-clamp-2 leading-relaxed">{photo.caption}</p>
@@ -1420,7 +1527,7 @@
                             alt={photo.caption}
                             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                             loading="lazy"
-                            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80" }}
+                            onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=100&auto=format&fit=crop&q=80" }}
                           />
                           <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
                             {belongingAlbum && (
@@ -1446,7 +1553,7 @@
           {/* --- DÒNG THỜI GIAN TIMELINE --- */}
           <section className="py-20 max-w-4xl mx-auto px-4">
             <div className="text-center mb-16">
-              <h2 className="text-3xl font-serif font-bold text-amber-950">Hành Trình Hạnh Phúc</h2>
+              <h2 className="text-3xl font-serif font-bold text-amber-955">Hành Trình Hạnh Phúc</h2>
               <div className="w-16 h-1 bg-amber-500 mx-auto mt-3 rounded-full"></div>
               <p className="text-slate-500 text-sm mt-2">Dấu mốc thời gian đáng nhớ của gia đình ta</p>
             </div>
@@ -1478,7 +1585,7 @@
                 
                 <div className="border-b border-orange-100 pb-4 flex justify-between items-center">
                   <div>
-                    <h3 className="text-2xl font-serif font-black text-amber-950 flex items-center space-x-2">
+                    <h3 className="text-2xl font-serif font-black text-amber-955 flex items-center space-x-2">
                       <span>⚙️</span>
                       <span>Bảng Quản Lý Thư Viện Ảnh Chi Tiết</span>
                     </h3>
@@ -1631,71 +1738,6 @@
             </div>
           </footer>
 
-          {/* --- LIGHTBOX (XEM ẢNH PHÓNG TO) --- */}
-          {activePhotoIndex !== null && filteredPhotos[activePhotoIndex] && (
-            <div className="fixed inset-0 z-50 bg-black/95 flex flex-col items-center justify-center p-4">
-              
-              {/* Nút đóng */}
-              <button 
-                onClick={() => setActivePhotoIndex(null)}
-                className="absolute top-4 right-4 text-white/80 hover:text-white bg-white/10 hover:bg-white/20 p-2 rounded-full transition-colors"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-6 h-6">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-
-              {/* Khối hiển thị ảnh chính */}
-              <div className="relative max-w-4xl w-full flex items-center justify-center">
-                
-                {/* Nút lùi */}
-                <button 
-                  onClick={(e) => { e.stopPropagation(); prevPhoto(); }}
-                  className="absolute left-2 md:-left-12 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
-                  </svg>
-                </button>
-
-                {/* Hình ảnh */}
-                <img 
-                  src={filteredPhotos[activePhotoIndex].url} 
-                  alt={filteredPhotos[activePhotoIndex].caption} 
-                  className="max-h-[75vh] max-w-full object-contain rounded-lg shadow-2xl transition-all duration-300"
-                />
-
-                {/* Nút tiến */}
-                <button 
-                  onClick={(e) => { e.stopPropagation(); nextPhoto(); }}
-                  className="absolute right-2 md:-right-12 text-white bg-white/10 hover:bg-white/20 p-2.5 rounded-full transition-all"
-                >
-                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-6 h-6">
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" />
-                  </svg>
-                </button>
-
-              </div>
-
-              {/* Chú thích ảnh */}
-              <div className="mt-6 text-center text-white max-w-xl">
-                <span className="text-xs uppercase tracking-widest text-amber-400 font-semibold bg-amber-950/60 px-3 py-1 rounded-full mb-3 inline-block">
-                  {filteredPhotos[activePhotoIndex].category}
-                </span>
-                <p className="text-base font-medium">{filteredPhotos[activePhotoIndex].caption}</p>
-                <p className="text-xs text-slate-400 mt-1">
-                  Chụp ngày: {parseAnniversaryDate(filteredPhotos[activePhotoIndex].date).toLocaleDateString('vi-VN')}
-                </p>
-              </div>
-
-              {/* Vị trí ảnh hiện tại */}
-              <div className="absolute bottom-4 text-xs text-white/50 font-mono">
-                {activePhotoIndex + 1} / {filteredPhotos.length}
-              </div>
-
-            </div>
-          )}
-
           {/* --- MODAL XÁC THỰC PIN --- */}
           {showPinModal && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs p-4 animate-fade-in font-sans">
@@ -1704,7 +1746,7 @@
                   🔑
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-amber-950 font-serif">Xác Thực Quản Trị Viên</h3>
+                  <h3 className="text-lg font-bold text-amber-955 font-serif">Xác Thực Quản Trị Viên</h3>
                   <p className="text-xs text-slate-500 mt-1 font-sans">Vui lòng nhập mã PIN để vào phần cấu hình album gia đình.</p>
                 </div>
                 <form onSubmit={handleVerifyPin} className="space-y-3">
@@ -1978,82 +2020,206 @@
                   {activeTab === 'photos' && (
                     <div className="space-y-5">
                       
-                      {/* CÔNG CỤ ĐỒNG BỘ GOOGLE PHOTOS CHUYÊN NGHIỆP */}
-                      <div className="p-5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-200/50 rounded-2xl space-y-3">
-                        <div className="flex items-center space-x-2">
-                          <span className="text-xl">⚡</span>
-                          <h4 className="text-sm font-bold text-amber-950">Đồng bộ Album Google Photos nhanh</h4>
+                      {/* Chọn phương thức dán */}
+                      <div className="flex bg-slate-100 p-1 rounded-xl text-xs font-bold border border-slate-200">
+                        <button
+                          type="button"
+                          onClick={() => setGPhotosSyncTab('auto')}
+                          className={`flex-grow py-1.5 rounded-lg font-bold text-center transition-all ${gPhotosSyncTab === 'auto' ? 'bg-amber-800 text-white shadow-sm' : 'text-slate-500'}`}
+                        >
+                          Cách 1: Quét link tự động
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setGPhotosSyncTab('manualHtml')}
+                          className={`flex-grow py-1.5 rounded-lg font-bold text-center transition-all ${gPhotosSyncTab === 'manualHtml' ? 'bg-amber-800 text-white shadow-sm' : 'text-slate-500'}`}
+                        >
+                          Cách 2: Đồng bộ mã HTML (100% Ok)
+                        </button>
+                      </div>
+                      
+                      {/* PHƯƠNG THỨC A: ĐỒNG BỘ TỰ ĐỘNG QUA LINK PROXY */}
+                      {gPhotosSyncTab === 'auto' ? (
+                        <div className="p-5 bg-gradient-to-r from-amber-500/10 to-orange-500/10 border border-amber-200/50 rounded-2xl space-y-3">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xl">⚡</span>
+                            <h4 className="text-sm font-bold text-amber-955">Đồng bộ Album Google Photos nhanh</h4>
+                          </div>
+                          <p className="text-xs text-slate-600 leading-relaxed">
+                            Dán liên kết album chia sẻ công khai của bạn để tự động quét & đưa toàn bộ ảnh vào album của gia đình. Không cần tải lên thủ công từng ảnh nữa!
+                          </p>
+                          
+                          <div className="space-y-3 pt-1">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                              <div className="md:col-span-2">
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Link album Google Photos</label>
+                                <input 
+                                  type="text" 
+                                  value={inputAlbumUrl}
+                                  onChange={(e) => setInputAlbumUrl(e.target.value)}
+                                  placeholder="https://photos.app.goo.gl/KQwnf8V..."
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500 font-mono"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-505 uppercase mb-1">Đích lưu vào Album</label>
+                                <select 
+                                  value={importAlbumId}
+                                  onChange={(e) => setImportAlbumId(e.target.value)}
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500"
+                                >
+                                  {albums.map((al) => (
+                                    <option key={al.id} value={al.id}>{al.name}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => handleImportAlbum(inputAlbumUrl, importAlbumId)}
+                              disabled={isScraping || !inputAlbumUrl.trim()}
+                              className={`w-full py-2.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center space-x-2 ${
+                                isScraping || !inputAlbumUrl.trim() 
+                                  ? 'bg-slate-300 cursor-not-allowed' 
+                                  : 'bg-amber-800 hover:bg-amber-900 shadow-md shadow-amber-800/10 active:scale-[0.99]'
+                              }`}
+                            >
+                              {isScraping ? (
+                                <>
+                                  <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                  </svg>
+                                  <span>Đang đồng bộ...</span>
+                                </>
+                              ) : (
+                                <span>📥 Đồng bộ hóa toàn bộ ảnh ngay</span>
+                              )}
+                            </button>
+
+                            {isScraping && currentProxyStatus && (
+                              <p className="text-[11px] text-amber-700 italic animate-pulse">⏳ {currentProxyStatus}</p>
+                            )}
+
+                            {scrapeError && (
+                              <div className="text-xs text-rose-600 font-semibold bg-rose-50 p-3 rounded-xl border border-rose-100 leading-relaxed">
+                                ⚠️ {scrapeError}
+                              </div>
+                            )}
+
+                            {scrapeSuccess && (
+                              <div className="text-xs text-emerald-700 font-semibold bg-emerald-50 p-3 rounded-xl border border-emerald-100 flex items-center justify-between">
+                                <span>🎉 {scrapeSuccess}</span>
+                                <button onClick={() => setScrapeSuccess('')} className="text-slate-400 hover:text-slate-600 font-bold text-sm px-1">×</button>
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        <p className="text-xs text-slate-600 leading-relaxed">
-                          Dán liên kết album chia sẻ công khai của bạn để tự động quét & đưa toàn bộ ảnh vào album của gia đình. Không cần tải lên thủ công từng ảnh nữa!
-                        </p>
-                        
-                        <div className="space-y-3 pt-1">
-                          <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
-                            <div className="md:col-span-2">
-                              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Link album Google Photos</label>
-                              <input 
-                                type="text" 
-                                value={inputAlbumUrl}
-                                onChange={(e) => setInputAlbumUrl(e.target.value)}
-                                placeholder="https://photos.app.goo.gl/KQwnf8V..."
-                                className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500 font-mono"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Đích lưu vào Album</label>
-                              <select 
-                                value={importAlbumId}
-                                onChange={(e) => setImportAlbumId(e.target.value)}
-                                className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500"
-                              >
-                                {albums.map((al) => (
-                                  <option key={al.id} value={al.id}>{al.name}</option>
-                                ))}
-                              </select>
-                            </div>
+                      ) : (
+                        /* PHƯƠNG THỨC B: QUÉT BẰNG MÃ NGUỒN HTML DÁN TRỰC TIẾP (100% THÀNH CÔNG) */
+                        <div className="p-5 bg-gradient-to-r from-indigo-500/10 to-amber-500/10 border border-indigo-200/50 rounded-2xl space-y-3 animate-fade-in">
+                          <div className="flex items-center space-x-2">
+                            <span className="text-xl">🛠</span>
+                            <h4 className="text-sm font-bold text-indigo-950">Đồng bộ tuyệt đối bằng mã nguồn HTML của Album</h4>
+                          </div>
+                          
+                          <div className="p-3 bg-white border border-slate-100 rounded-xl space-y-1.5 text-[11px] leading-relaxed text-slate-600">
+                            <p className="font-bold text-indigo-900">Các bước thực hiện nhanh chóng trên máy tính:</p>
+                            <ol className="list-decimal list-inside space-y-1 pl-1">
+                              <li>Mở link Album Google Photos của bạn trên trình duyệt Web.</li>
+                              <li>Nhấn phím tắt <code className="bg-slate-100 px-1 border rounded">Ctrl + U</code> (Xem nguồn trang).</li>
+                              <li>Nhấn <code className="bg-slate-100 px-1 border rounded">Ctrl + A</code> để chọn tất cả mã chữ, rồi nhấn <code className="bg-slate-100 px-1 border rounded">Ctrl + C</code> để Sao chép.</li>
+                              <li>Dán toàn bộ đoạn mã đó vào ô nhập liệu dưới đây và nhấn nút quét ảnh.</li>
+                            </ol>
                           </div>
 
+                          <div className="space-y-3 pt-1">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                              <div className="md:col-span-2">
+                                <label className="block text-[10px] font-bold text-slate-500 uppercase mb-1">Mã nguồn HTML của Album</label>
+                                <textarea 
+                                  value={pastedHtmlSource}
+                                  onChange={(e) => setPastedHtmlSource(e.target.value)}
+                                  placeholder="Nhấp chuột vào đây và nhấn Ctrl+V để dán mã nguồn..."
+                                  rows={3}
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-1.5 text-xs outline-none focus:border-amber-500 font-mono"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[10px] font-bold text-slate-505 uppercase mb-1">Đích lưu vào Album</label>
+                                <select 
+                                  value={importAlbumId}
+                                  onChange={(e) => setImportAlbumId(e.target.value)}
+                                  className="w-full border border-slate-200 bg-white rounded-lg px-2.5 py-2 text-xs outline-none focus:border-amber-500"
+                                >
+                                  {albums.map((al) => (
+                                    <option key={al.id} value={al.id}>{al.name}</option>
+                                  ))}
+                                </select>
+                              </div>
+                            </div>
+
+                            <button
+                              onClick={() => handleImportFromPastedHtml(importTargetType, importAlbumId, importNewAlbumName)}
+                              disabled={isScraping || !pastedHtmlSource.trim()}
+                              className={`w-full py-2.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center space-x-2 ${
+                                isScraping || !pastedHtmlSource.trim() 
+                                  ? 'bg-slate-300 cursor-not-allowed' 
+                                  : 'bg-indigo-800 hover:bg-indigo-900 shadow-md'
+                              }`}
+                            >
+                              {isScraping ? (
+                                <span>Đang xử lý HTML...</span>
+                              ) : (
+                                <span>🚀 Khởi động quét ảnh từ mã nguồn HTML</span>
+                              )}
+                            </button>
+
+                            {scrapeError && (
+                              <div className="text-xs text-rose-600 font-semibold bg-rose-50 p-3 rounded-xl border border-rose-100 leading-relaxed">
+                                ⚠️ {scrapeError}
+                              </div>
+                            )}
+
+                            {scrapeSuccess && (
+                              <div className="text-xs text-emerald-700 font-semibold bg-emerald-50 p-3 rounded-xl border border-emerald-100 flex items-center justify-between">
+                                <span>🎉 {scrapeSuccess}</span>
+                                <button onClick={() => setScrapeSuccess('')} className="text-slate-400 hover:text-slate-600 font-bold text-sm px-1">×</button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* KHU VỰC DỰ PHÒNG CHỐNG LỖI HIỂN THỊ - DÁN DANH SÁCH LINK ĐƠN LẺ */}
+                      <div className="p-5 bg-gradient-to-r from-rose-500/10 to-amber-500/10 border border-rose-200/50 rounded-2xl space-y-3">
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xl">📋</span>
+                          <h4 className="text-sm font-bold text-rose-955 font-sans">Giải pháp thủ công: Dán trực tiếp danh sách link ảnh</h4>
+                        </div>
+                        <p className="text-xs text-slate-600 leading-relaxed">
+                          Nếu quét tự động Google Photos bị chặn, hãy dán tất cả các liên kết đó vào ô dưới đây (mỗi dòng một link) để nạp ảnh trực tiếp siêu tốc!
+                        </p>
+                        
+                        <div className="space-y-3">
+                          <textarea
+                            value={inputDirectUrls}
+                            onChange={(e) => setInputDirectUrls(e.target.value)}
+                            placeholder="Dán các đường dẫn ảnh trực tiếp tại đây...&#10;https://lh3.googleusercontent.com/pw/...&#10;https://images.unsplash.com/photo-..."
+                            rows={4}
+                            className="w-full border border-slate-200 bg-white rounded-xl p-3 text-xs font-mono focus:ring-2 focus:ring-rose-500/20 focus:border-rose-500 outline-none"
+                          />
                           <button
-                            onClick={() => handleImportAlbum(inputAlbumUrl, importAlbumId)}
-                            disabled={isScraping || !inputAlbumUrl.trim()}
+                            onClick={() => handleImportDirectLinks(importTargetType, importAlbumId, importNewAlbumName)}
+                            disabled={!inputDirectUrls.trim() || isScraping}
                             className={`w-full py-2.5 rounded-xl text-xs font-bold text-white transition-all flex items-center justify-center space-x-2 ${
-                              isScraping || !inputAlbumUrl.trim() 
-                                ? 'bg-slate-300 cursor-not-allowed' 
-                                : 'bg-amber-800 hover:bg-amber-900 shadow-md shadow-amber-800/10 active:scale-[0.99]'
+                              !inputDirectUrls.trim() || isScraping
+                                ? 'bg-slate-300 cursor-not-allowed'
+                                : 'bg-rose-700 hover:bg-rose-800 shadow-md shadow-rose-700/10 active:scale-[0.99]'
                             }`}
                           >
-                            {isScraping ? (
-                              <>
-                                <svg className="animate-spin h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
-                                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                </svg>
-                                <span>Đang đồng bộ...</span>
-                              </>
-                            ) : (
-                              <span>📥 Đồng bộ hóa toàn bộ ảnh ngay</span>
-                            )}
+                            <span>📥 Nạp danh sách ảnh đã dán</span>
                           </button>
-
-                          {isScraping && currentProxyStatus && (
-                            <p className="text-[11px] text-amber-700 italic animate-pulse">
-                              ⏳ {currentProxyStatus}
-                            </p>
-                          )}
-
-                          {scrapeError && (
-                            <div className="text-xs text-rose-600 font-semibold bg-rose-50 p-3 rounded-xl border border-rose-100 leading-relaxed">
-                              ⚠️ {scrapeError}
-                            </div>
-                          )}
-
-                          {scrapeSuccess && (
-                            <div className="text-xs text-emerald-700 font-semibold bg-emerald-50 p-3 rounded-xl border border-emerald-100 flex items-center justify-between">
-                              <span>🎉 {scrapeSuccess}</span>
-                              <button onClick={() => setScrapeSuccess('')} className="text-slate-400 hover:text-slate-600 font-bold text-sm px-1">×</button>
-                            </div>
-                          )}
                         </div>
                       </div>
 
@@ -2080,7 +2246,7 @@
                                   src={photo.url} 
                                   alt={photo.caption} 
                                   className="w-full h-full object-cover"
-                                  onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1501504905252-473c47e087f8?w=1000&auto=format&fit=crop&q=80" }}
+                                  onError={(e) => { e.target.src = "https://images.unsplash.com/photo-1663684591502-93887202a863?w=1000&auto=format&fit=crop&q=80" }}
                                 />
                               </div>
 
@@ -2449,7 +2615,7 @@
             </div>
           )}
 
-          {/* --- MODAL TRÍCH XUẤT ẢNH ĐƠN TỪ HTML --- */}
+          {/* --- MODAL TRÍCH XUẤT ẢNH ĐƠN TỪ MÃ HTML --- */}
           {htmlExtractorTarget && (
             <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-xs p-4 animate-fade-in font-sans">
               <div className="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-rose-100 flex flex-col space-y-4">
@@ -2515,7 +2681,7 @@
                   ❓
                 </div>
                 <div>
-                  <h3 className="text-lg font-bold text-amber-950 font-serif">Xác Nhận Hành Động</h3>
+                  <h3 className="text-lg font-bold text-amber-955 font-serif">Xác Nhận Hành Động</h3>
                   <p className="text-xs text-slate-500 mt-2 leading-relaxed font-sans">{confirmDialog.text}</p>
                 </div>
                 <div className="flex space-x-2 pt-2 font-sans">
