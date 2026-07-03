@@ -4,7 +4,117 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title id="browser-document-title">Tổ Ấm Yêu Thương - Album Gia Đình</title>
-  
+
+	// chống copy
+		<style>
+	/* Chặn chọn văn bản */
+	html, body {
+		-webkit-user-select: none;
+		-moz-user-select: none;
+		-ms-user-select: none;
+		user-select: none;
+		-webkit-touch-callout: none;
+	}
+	</style>
+
+	<script>
+	(() => {
+		"use strict";
+
+		// Chặn chuột phải
+		document.addEventListener("contextmenu", e => e.preventDefault());
+
+		// Chặn kéo thả
+		document.addEventListener("dragstart", e => e.preventDefault());
+
+		// Chặn chọn văn bản
+		document.addEventListener("selectstart", e => e.preventDefault());
+
+		// Chặn copy
+		document.addEventListener("copy", e => e.preventDefault());
+
+		// Chặn cut
+		document.addEventListener("cut", e => e.preventDefault());
+
+		// Chặn paste
+		document.addEventListener("paste", e => e.preventDefault());
+
+		// Chặn các phím tắt
+		document.addEventListener("keydown", function (e) {
+
+			const key = e.key.toLowerCase();
+
+			// F12
+			if (e.key === "F12") {
+				e.preventDefault();
+				return false;
+			}
+
+			// Ctrl + U
+			if (e.ctrlKey && key === "u") {
+				e.preventDefault();
+				return false;
+			}
+
+			// Ctrl + S
+			if (e.ctrlKey && key === "s") {
+				e.preventDefault();
+				return false;
+			}
+
+			// Ctrl + P
+			if (e.ctrlKey && key === "p") {
+				e.preventDefault();
+				return false;
+			}
+
+			// Ctrl + A
+			if (e.ctrlKey && key === "a") {
+				e.preventDefault();
+				return false;
+			}
+
+			// Ctrl + C
+			if (e.ctrlKey && key === "c") {
+				e.preventDefault();
+				return false;
+			}
+
+			// Ctrl + X
+			if (e.ctrlKey && key === "x") {
+				e.preventDefault();
+				return false;
+			}
+
+			// Ctrl + Shift + I
+			if (e.ctrlKey && e.shiftKey && key === "i") {
+				e.preventDefault();
+				return false;
+			}
+
+			// Ctrl + Shift + J
+			if (e.ctrlKey && e.shiftKey && key === "j") {
+				e.preventDefault();
+				return false;
+			}
+
+			// Ctrl + Shift + C
+			if (e.ctrlKey && e.shiftKey && key === "c") {
+				e.preventDefault();
+				return false;
+			}
+
+			// Ctrl + Shift + K (Firefox)
+			if (e.ctrlKey && e.shiftKey && key === "k") {
+				e.preventDefault();
+				return false;
+			}
+		});
+
+	})();
+	</script>
+		// kết thúc chống copy
+	
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
