@@ -2654,86 +2654,136 @@ html, body {
 }
 </style>
 
+<style>
+/* 1. Chặn chọn văn bản và bảo mật đối với khách xem Album */
+html, body {
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+}
+
+/* 2. Mở khóa cho phép bôi đen, chọn văn bản thoải mái trong bảng cài đặt và các ô nhập liệu của Admin */
+input, textarea, select, [contenteditable="true"], .fixed.inset-y-0, .font-mono {
+    -webkit-user-select: text !important;
+    -moz-user-select: text !important;
+    -ms-user-select: text !important;
+    user-select: text !important;
+}
+</style>
+
 <script>
 (() => {
     "use strict";
 
-    // Chặn chuột phải
+    // Chặn chuột phải toàn trang
     document.addEventListener("contextmenu", e => e.preventDefault());
 
-    // Chặn kéo thả
+    // Chặn kéo thả hình ảnh/văn bản toàn trang
     document.addEventListener("dragstart", e => e.preventDefault());
 
-    // Chặn chọn văn bản
-    document.addEventListener("selectstart", e => e.preventDefault());
+    // Chặn bắt đầu chọn văn bản toàn trang
+    document.addEventListener("selectstart", e => {
+        // Nếu đang chọn chữ trong ô nhập liệu hoặc bảng cài đặt thì cho phép
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.closest('.fixed.inset-y-0')) return;
+        e.preventDefault();
+    });
 
-    // Chặn copy
-    document.addEventListener("copy", e => e.preventDefault());
+    // Chặn lệnh copy văn bản ngoài giao diện công cộng
+    document.addEventListener("copy", e => {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.closest('input') || e.target.closest('textarea') || e.target.closest('.font-mono')) return;
+        e.preventDefault();
+    });
 
-    // Chặn cut
-    document.addEventListener("cut", e => e.preventDefault());
-
-    // Chỉ chặn paste ở ngoài, cho phép dán (paste) trong các ô nhập liệu của Admin
-    document.addEventListener("paste", e => {
+    // Chặn lệnh cắt (cut) ngoài giao diện công cộng
+    document.addEventListener("cut", e => {
         if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
         e.preventDefault();
     });
 
-    // Chặn các phím tắt hệ thống
+    // Chỉ chặn paste ở ngoài, cho phép dán (paste) dữ liệu mượt mà trong bảng Admin
+    document.addEventListener("paste", e => {
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.closest('input') || e.target.closest('textarea')) return;
+        e.preventDefault();
+    });
+
+    // Hệ thống lọc và chặn phím tắt thông minh
     document.addEventListener("keydown", function (e) {
         const key = e.key.toLowerCase();
 
-        // F12
+        // NẾU ADMIN ĐANG GÕ TRONG Ô NHẬP LIỆU: Mở khóa phím tắt chỉnh sửa
+        if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA" || e.target.closest('.fixed.inset-y-0')) {
+            // Tuy nhiên vẫn chặn F12 và Xem nguồn trang Ctrl+U để bảo mật
+            if (e.key === "F12" || (e.ctrlKey && key === "u")) {
+                e.preventDefault();
+                return false;
+            }
+            return true; // Cho phép dùng Ctrl+A, Ctrl+C, Ctrl+V, Ctrl+X bình thường
+        }
+
+        // ĐỐI VỚI KHÁCH XEM NGOÀI GIAO DIỆN: Tiến hành chặn toàn bộ phím tắt
+        // Chặn F12
         if (e.key === "F12") {
             e.preventDefault();
             return false;
         }
-        // Ctrl + U
+
+        // Chặn Ctrl + U (Xem nguồn trang)
         if (e.ctrlKey && key === "u") {
             e.preventDefault();
             return false;
         }
-        // Ctrl + S
+
+        // Chặn Ctrl + S (Lưu trang web)
         if (e.ctrlKey && key === "s") {
             e.preventDefault();
             return false;
         }
-        // Ctrl + P
+
+        // Chặn Ctrl + P (In ấn trang web)
         if (e.ctrlKey && key === "p") {
             e.preventDefault();
             return false;
         }
-        // Ctrl + A
+
+        // Chặn Ctrl + A (Chọn tất cả)
         if (e.ctrlKey && key === "a") {
             e.preventDefault();
             return false;
         }
-        // Ctrl + C
+
+        // Chặn Ctrl + C (Sao chép)
         if (e.ctrlKey && key === "c") {
             e.preventDefault();
             return false;
         }
-        // Ctrl + X
+
+        // Chặn Ctrl + X (Cắt)
         if (e.ctrlKey && key === "x") {
             e.preventDefault();
             return false;
         }
-        // Ctrl + Shift + I
+
+        // Chặn Ctrl + Shift + I (Mở DevTools Chrome/Edge)
         if (e.ctrlKey && e.shiftKey && key === "i") {
             e.preventDefault();
             return false;
         }
-        // Ctrl + Shift + J
+
+        // Chặn Ctrl + Shift + J (Mở Console Chrome/Edge)
         if (e.ctrlKey && e.shiftKey && key === "j") {
             e.preventDefault();
             return false;
         }
-        // Ctrl + Shift + C
+
+        // Chặn Ctrl + Shift + C (Chọn phần tử kiểm tra)
         if (e.ctrlKey && e.shiftKey && key === "c") {
             e.preventDefault();
             return false;
         }
-        // Ctrl + Shift + K (Firefox)
+
+        // Chặn Ctrl + Shift + K (Mở Console trên Firefox)
         if (e.ctrlKey && e.shiftKey && key === "k") {
             e.preventDefault();
             return false;
