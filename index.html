@@ -501,28 +501,39 @@
         localStorage.setItem('family_adminPin', adminPin);
       }, [albumTitle, albumSubtitle, musicUrl, anniversaryDate, adminPin]);
 
-      // --- TRÌNH CHIẾU TỰ ĐỘNG TRONG LIGHTBOX ---
+      // --- TRÌNH CHIẾU TỰ ĐỘNG TRONG LIGHTBOX (ĐÃ ĐƯỢC CẬP NHẬT CHUẨN XÁC) ---
       const nextPhoto = () => {
         if (filteredPhotos.length === 0) return;
-        setActivePhotoIndex((prev) => (prev + 1) % filteredPhotos.length);
+        setActivePhotoIndex((prev) => {
+          if (prev === null) return 0;
+          return (prev + 1) % filteredPhotos.length;
+        });
       };
 
       const prevPhoto = () => {
         if (filteredPhotos.length === 0) return;
-        setActivePhotoIndex((prev) => (prev - 1 + filteredPhotos.length) % filteredPhotos.length);
+        setActivePhotoIndex((prev) => {
+          if (prev === null) return 0;
+          return (prev - 1 + filteredPhotos.length) % filteredPhotos.length;
+        });
       };
 
       useEffect(() => {
         let intervalId;
-        if (isSlideshowActive && activePhotoIndex !== null) {
+        if (isSlideshowActive) {
           intervalId = setInterval(() => {
-            nextPhoto();
+            // Nếu đang bật trình chiếu nhưng chưa mở ảnh nào, tự động mở ảnh đầu tiên
+            if (activePhotoIndex === null) {
+              setActivePhotoIndex(0);
+            } else {
+              nextPhoto();
+            }
           }, 3000); 
         }
         return () => {
           if (intervalId) clearInterval(intervalId);
         };
-      }, [isSlideshowActive, activePhotoIndex]);
+      }, [isSlideshowActive, activePhotoIndex, filteredPhotos.length]);
 
       // --- ĐỊNH NGHĨA TRÌNH PHÁT NHẠC NỀN ---
       const togglePlay = () => {
@@ -2712,7 +2723,7 @@
     const root = ReactDOM.createRoot(document.getElementById('root'));
     root.render(<App />);
   </script>
-  
+
   <style>
 /* Chặn chọn văn bản */
 html, body {
@@ -2730,13 +2741,13 @@ html, body {
 
     // Chặn chuột phải
     document.addEventListener("contextmenu", e => e.preventDefault());
-
+	
     // Chặn kéo thả
     document.addEventListener("dragstart", e => e.preventDefault());
-
+	
     // Chặn chọn văn bản
     document.addEventListener("selectstart", e => e.preventDefault());
-
+	
     // Chặn copy
     document.addEventListener("copy", e => e.preventDefault());
 
@@ -2748,7 +2759,6 @@ html, body {
     if (e.target.tagName === "INPUT" || e.target.tagName === "TEXTAREA") return;
     e.preventDefault();
 });
-
     // Chặn các phím tắt
     document.addEventListener("keydown", function (e) {
 
